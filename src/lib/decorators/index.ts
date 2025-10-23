@@ -4,6 +4,7 @@ export { DELETE } from "./DELETE.ts";
 export { GET } from "./GET.ts";
 export { Header } from "./Header.ts";
 export { Logger } from "./Logger.ts";
+export { OnError } from "./OnError.ts";
 export { PATCH } from "./PATCH.ts";
 export { Path } from "./Path.ts";
 export { POST } from "./POST.ts";

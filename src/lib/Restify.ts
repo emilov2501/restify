@@ -169,6 +169,28 @@ export class Restify {
 						error instanceof Error ? error.message : String(error),
 				});
 			}
+
+			// Check if OnError handler is defined
+			const errorHandler = Reflect.getMetadata(
+				METADATA_KEYS.ON_ERROR,
+				proto,
+				propertyKey,
+			) as ((error: unknown) => unknown) | undefined;
+
+			if (errorHandler) {
+				const result = await errorHandler(error);
+				// If handler returns a value, use it as the response
+				if (result !== undefined) {
+					return result as RestifyResponse<T>;
+				}
+				// If handler returns void/undefined, suppress the error
+				return {
+					data: undefined as T,
+					status: 0,
+					headers: {},
+				};
+			}
+
 			throw error;
 		}
 	}

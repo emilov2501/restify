@@ -3,4 +3,5 @@ export const METADATA_KEYS = {
 	COLLECTION: "restify:collection",
 	PARAMETERS: "restify:parameters",
 	LOGGER: "restify:logger",
+	ON_ERROR: "restify:onError",
 } as const;
