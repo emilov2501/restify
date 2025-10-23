@@ -3,6 +3,7 @@ import {
 	Collection,
 	DELETE,
 	GET,
+	Logger,
 	Path,
 	POST,
 	PUT,
@@ -30,6 +31,7 @@ interface UpdateTodoDto {
 @Collection("/todos")
 export class TodoRepository extends Restify {
 	@GET("")
+	@Logger()
 	getTodos(): Promise<{ data: Todo[] }> {
 		return {} as Promise<{ data: Todo[] }>;
 	}

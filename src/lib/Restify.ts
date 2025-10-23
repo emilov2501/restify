@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import type { AxiosInstance } from "axios";
+import { consola } from "consola";
 import { METADATA_KEYS } from "./constants.ts";
 import type {
 	MethodMetadata,
@@ -63,6 +64,12 @@ export class Restify {
 			propertyKey,
 		) || []) as ParameterMetadata[];
 
+		const isLoggerEnabled = Reflect.getMetadata(
+			METADATA_KEYS.LOGGER,
+			proto,
+			propertyKey,
+		) as boolean | undefined;
+
 		const collectionMetadata = Reflect.getMetadata(
 			METADATA_KEYS.COLLECTION,
 			this.constructor,
@@ -113,25 +120,56 @@ export class Restify {
 
 		const finalURL = queryString ? `${fullPath}?${queryString}` : fullPath;
 
-		// Execute request with axios
-		const response = await this.axiosInstance.request<T>({
-			method: methodMetadata.method,
-			url: finalURL,
-			headers,
-			data: body,
-		});
-
-		const headersRecord: Record<string, string> = {};
-		for (const [key, value] of Object.entries(response.headers)) {
-			if (typeof value === "string") {
-				headersRecord[key] = value;
-			}
+		// Log request if logger is enabled
+		if (isLoggerEnabled) {
+			consola.info("HTTP Request", {
+				method: methodMetadata.method,
+				url: finalURL,
+				headers: Object.keys(headers).length > 0 ? headers : undefined,
+				body: body !== undefined ? body : undefined,
+			});
 		}
 
-		return {
-			data: response.data,
-			status: response.status,
-			headers: headersRecord,
-		};
+		try {
+			// Execute request with axios
+			const response = await this.axiosInstance.request<T>({
+				method: methodMetadata.method,
+				url: finalURL,
+				headers,
+				data: body,
+			});
+
+			// Log response if logger is enabled
+			if (isLoggerEnabled) {
+				consola.success("HTTP Response", {
+					status: response.status,
+					data: response.data,
+				});
+			}
+
+			const headersRecord: Record<string, string> = {};
+			for (const [key, value] of Object.entries(response.headers)) {
+				if (typeof value === "string") {
+					headersRecord[key] = value;
+				}
+			}
+
+			return {
+				data: response.data,
+				status: response.status,
+				headers: headersRecord,
+			};
+		} catch (error) {
+			// Log error if logger is enabled
+			if (isLoggerEnabled) {
+				consola.error("HTTP Request Failed", {
+					method: methodMetadata.method,
+					url: finalURL,
+					error:
+						error instanceof Error ? error.message : String(error),
+				});
+			}
+			throw error;
+		}
 	}
 }

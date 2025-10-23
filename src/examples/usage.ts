@@ -12,30 +12,24 @@ const client = axios.create({
 const todoRepo = new TodoRepository(client);
 
 // Get all todos
-const allTodos = await todoRepo.getTodos();
-console.log("All todos:", allTodos.data);
+await todoRepo.getTodos();
 
 // Get todo by id
-const todo = await todoRepo.getTodoById(1);
-console.log("Todo by id:", todo.data);
+await todoRepo.getTodoById(1);
 
 // Get paginated list
-const paginatedTodos = await todoRepo.getList(1, 10);
-console.log("Paginated todos:", paginatedTodos.data);
+await todoRepo.getList(1, 10);
 
 // Create new todo
-const newTodo = await todoRepo.createTodo({
+todoRepo.createTodo({
 	title: "New Todo",
 	completed: false,
 });
-console.log("Created todo:", newTodo.data);
 
 // Update todo
-const updatedTodo = await todoRepo.updateTodo(1, {
+await todoRepo.updateTodo(1, {
 	completed: true,
 });
-console.log("Updated todo:", updatedTodo.data);
 
 // Delete todo
 await todoRepo.deleteTodo(1);
-console.log("Todo deleted");
