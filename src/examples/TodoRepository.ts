@@ -43,6 +43,7 @@ export class TodoRepository extends Restify {
 	}
 
 	@GET("")
+	@Logger()
 	getList(
 		@Query("page") _page: number,
 		@Query("limit") _limit: number,
@@ -51,6 +52,7 @@ export class TodoRepository extends Restify {
 	}
 
 	@GET("")
+	@Logger()
 	getFilteredTodos(
 		@QueryMap() _filters: {
 			completed?: boolean;
@@ -62,11 +64,13 @@ export class TodoRepository extends Restify {
 	}
 
 	@POST("")
+	@Logger()
 	createTodo(@Body() _todo: CreateTodoDto): Promise<{ data: Todo }> {
 		return {} as Promise<{ data: Todo }>;
 	}
 
 	@PUT("/:id")
+	@Logger()
 	updateTodo(
 		@Path("id") _id: number,
 		@Body() _todo: UpdateTodoDto,
@@ -75,6 +79,7 @@ export class TodoRepository extends Restify {
 	}
 
 	@DELETE("/:id")
+	@Logger()
 	deleteTodo(@Path("id") _id: number): Promise<{ data: void }> {
 		return {} as Promise<{ data: void }>;
 	}

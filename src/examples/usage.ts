@@ -9,27 +9,36 @@ const client = axios.create({
 });
 
 // Example usage
-const todoRepo = new TodoRepository(client);
+async function main() {
+	const todoRepo = new TodoRepository(client);
 
-// Get all todos
-await todoRepo.getTodos();
+	// Get all todos
+	try {
+		await todoRepo.getTodos();
+	} catch (e) {
+		console.log("hlelo");
+		console.log(e);
+	}
 
-// Get todo by id
-await todoRepo.getTodoById(1);
+	// // Get todo by id
+	// await todoRepo.getTodoById(1);
 
-// Get paginated list
-await todoRepo.getList(1, 10);
+	// // Get paginated list
+	// await todoRepo.getList(1, 10);
 
-// Create new todo
-todoRepo.createTodo({
-	title: "New Todo",
-	completed: false,
-});
+	// // Create new todo
+	// todoRepo.createTodo({
+	// 	title: "New Todo",
+	// 	completed: false,
+	// });
 
-// Update todo
-await todoRepo.updateTodo(1, {
-	completed: true,
-});
+	// // Update todo
+	// await todoRepo.updateTodo(1, {
+	// 	completed: true,
+	// });
 
-// Delete todo
-await todoRepo.deleteTodo(1);
+	// // Delete todo
+	// await todoRepo.deleteTodo(1);
+}
+
+main();
