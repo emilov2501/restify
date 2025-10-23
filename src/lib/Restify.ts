@@ -80,6 +80,14 @@ export class Restify {
 
       if (param.type === "query" && param.key && value !== undefined) {
         queryParams[param.key] = value as string | number | boolean;
+      } else if (param.type === "queryMap" && value !== undefined) {
+        // Handle dynamic query parameters from object
+        const queryObj = value as Record<string, string | number | boolean | undefined>;
+        for (const [key, val] of Object.entries(queryObj)) {
+          if (val !== undefined && val !== null) {
+            queryParams[key] = val;
+          }
+        }
       } else if (param.type === "path" && param.key && value !== undefined) {
         url = url.replace(`:${param.key}`, String(value));
       } else if (param.type === "body") {

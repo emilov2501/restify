@@ -1,4 +1,4 @@
-import { Restify, Collection, GET, POST, PUT, DELETE, Query, Path, Body } from "../lib/index.ts";
+import { Restify, Collection, GET, POST, PUT, DELETE, Query, QueryMap, Path, Body } from "../lib/index.ts";
 
 interface Todo {
   id: number;
@@ -32,6 +32,17 @@ export class TodoRepository extends Restify {
   getList(
     @Query("page") _page: number,
     @Query("limit") _limit: number
+  ): Promise<{ data: Todo[] }> {
+    return {} as Promise<{ data: Todo[] }>;
+  }
+
+  @GET("")
+  getFilteredTodos(
+    @QueryMap() _filters: {
+      completed?: boolean;
+      title?: string;
+      priority?: "low" | "medium" | "high";
+    }
   ): Promise<{ data: Todo[] }> {
     return {} as Promise<{ data: Todo[] }>;
   }

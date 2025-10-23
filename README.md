@@ -53,6 +53,16 @@ class TodoRepository extends Restify {
   createTodo(@Body() todo: CreateTodoDto): Promise<{ data: Todo }> {
     return {} as Promise<{ data: Todo }>;
   }
+
+  @GET("")
+  getFilteredTodos(
+    @QueryMap() filters: {
+      completed?: boolean;
+      priority?: "low" | "medium" | "high";
+    }
+  ): Promise<{ data: Todo[] }> {
+    return {} as Promise<{ data: Todo[] }>;
+  }
 }
 
 // Использование
@@ -79,6 +89,7 @@ const paginated = await todoRepo.getList(1, 10);
 
 ### Параметры
 - `@Query(key)` - Query параметр
+- `@QueryMap()` - Динамические query параметры из объекта (для фильтров)
 - `@Path(key)` - Path параметр (в URL)
 - `@Body()` - Request body
 - `@Header(key)` - HTTP заголовок

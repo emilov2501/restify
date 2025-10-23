@@ -3,7 +3,7 @@ import "reflect-metadata";
 import { Restify } from "../Restify.ts";
 import { Collection } from "../decorators/Collection.ts";
 import { GET, POST, PUT, DELETE } from "../decorators/index.ts";
-import { Query, Path, Body, Header } from "../decorators/index.ts";
+import { Query, QueryMap, Path, Body, Header } from "../decorators/index.ts";
 
 // Mock fetch globally
 global.fetch = vi.fn();
@@ -391,6 +391,129 @@ describe("Restify", () => {
           method: "DELETE",
         })
       );
+    });
+  });
+
+  describe("QueryMap support", () => {
+    it("should handle dynamic query parameters from object", async () => {
+      const mockResponse = {
+        json: () => Promise.resolve([]),
+        status: 200,
+        headers: new Map(),
+      };
+      
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(mockResponse);
+
+      @Collection("/api")
+      class TestRepository extends Restify {
+        @GET("/users")
+        getUsers(@QueryMap() _filters: Record<string, string | number>) {
+          return {} as Promise<{ data: unknown }>;
+        }
+      }
+
+      const repo = new TestRepository({
+        baseURL: "https://api.example.com",
+      });
+
+      await repo.getUsers({ name: "John", age: 25, status: "active" });
+
+      const callUrl = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+      expect(callUrl).toContain("https://api.example.com/api/users?");
+      expect(callUrl).toContain("name=John");
+      expect(callUrl).toContain("age=25");
+      expect(callUrl).toContain("status=active");
+    });
+
+    it("should skip undefined and null values in QueryMap", async () => {
+      const mockResponse = {
+        json: () => Promise.resolve([]),
+        status: 200,
+        headers: new Map(),
+      };
+      
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(mockResponse);
+
+      @Collection("/api")
+      class TestRepository extends Restify {
+        @GET("/users")
+        getUsers(@QueryMap() _filters: Record<string, string | number | undefined>) {
+          return {} as Promise<{ data: unknown }>;
+        }
+      }
+
+      const repo = new TestRepository({
+        baseURL: "https://api.example.com",
+      });
+
+      await repo.getUsers({ name: "John", age: undefined, status: "active" });
+
+      const callUrl = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+      expect(callUrl).toContain("name=John");
+      expect(callUrl).toContain("status=active");
+      expect(callUrl).not.toContain("age");
+    });
+
+    it("should work with empty QueryMap object", async () => {
+      const mockResponse = {
+        json: () => Promise.resolve([]),
+        status: 200,
+        headers: new Map(),
+      };
+      
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(mockResponse);
+
+      @Collection("/api")
+      class TestRepository extends Restify {
+        @GET("/users")
+        getUsers(@QueryMap() _filters: Record<string, string>) {
+          return {} as Promise<{ data: unknown }>;
+        }
+      }
+
+      const repo = new TestRepository({
+        baseURL: "https://api.example.com",
+      });
+
+      await repo.getUsers({});
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        "https://api.example.com/api/users",
+        expect.any(Object)
+      );
+    });
+
+    it("should combine QueryMap with regular Query parameters", async () => {
+      const mockResponse = {
+        json: () => Promise.resolve([]),
+        status: 200,
+        headers: new Map(),
+      };
+      
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(mockResponse);
+
+      @Collection("/api")
+      class TestRepository extends Restify {
+        @GET("/users")
+        getUsers(
+          @Query("page") _page: number,
+          @QueryMap() _filters: Record<string, string>
+        ) {
+          return {} as Promise<{ data: unknown }>;
+        }
+      }
+
+      const repo = new TestRepository({
+        baseURL: "https://api.example.com",
+      });
+
+      await repo.getUsers(1, { name: "John", status: "active" });
+
+      const callUrl = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
+      expect(callUrl).toContain("https://api.example.com/api/users?");
+      expect(callUrl).toContain("page=1");
+      expect(callUrl).toContain("name=John");
+      expect(callUrl).toContain("status=active");
     });
   });
 
