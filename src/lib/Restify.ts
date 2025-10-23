@@ -58,6 +58,25 @@ export class Restify {
 		propertyKey: string,
 	): Promise<RestifyResponse<T>> {
 		const proto = Object.getPrototypeOf(this) as object;
+
+		// Check if method is deprecated
+		const deprecatedMetadata = Reflect.getMetadata(
+			METADATA_KEYS.DEPRECATED,
+			proto,
+			propertyKey,
+		) as { message?: string; options?: { strict?: boolean } } | undefined;
+
+		if (deprecatedMetadata) {
+			const message =
+				deprecatedMetadata.message ||
+				`Method '${String(propertyKey)}' is deprecated`;
+
+			if (deprecatedMetadata.options?.strict) {
+				throw new Error(message);
+			}
+			consola.warn(`⚠️  ${message}`);
+		}
+
 		const parameters = (Reflect.getMetadata(
 			METADATA_KEYS.PARAMETERS,
 			proto,
