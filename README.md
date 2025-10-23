@@ -104,8 +104,35 @@ interface RestifyConfig {
   baseURL: string;
   headers?: Record<string, string>;
   timeout?: number;
+  client?: "fetch" | "axios"; // По умолчанию "fetch"
 }
 ```
+
+### HTTP Клиенты
+
+Библиотека поддерживает два HTTP клиента:
+
+#### Fetch (по умолчанию)
+```typescript
+const repo = new TodoRepository({
+  baseURL: "https://api.example.com",
+});
+```
+
+#### Axios
+```typescript
+const repo = new TodoRepository({
+  baseURL: "https://api.example.com",
+  client: "axios",
+  timeout: 5000,
+});
+```
+
+**Преимущества Axios:**
+- Автоматическая трансформация JSON
+- Отмена запросов
+- Прогресс загрузки
+- Interceptors для запросов и ответов
 
 ## Структура проекта
 

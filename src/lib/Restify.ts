@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import axios, { type AxiosInstance } from "axios";
 import { METADATA_KEYS } from "./constants.ts";
 import type {
 	MethodMetadata,
@@ -25,9 +26,20 @@ import type {
  */
 export class Restify {
 	private config: RestifyConfig;
+	private axiosInstance?: AxiosInstance;
 
 	constructor(config: RestifyConfig) {
 		this.config = config;
+
+		// Initialize axios if client is set to axios
+		if (config.client === "axios") {
+			this.axiosInstance = axios.create({
+				baseURL: config.baseURL,
+				headers: config.headers,
+				timeout: config.timeout,
+			});
+		}
+
 		this.initializeRoutes();
 	}
 
@@ -129,6 +141,18 @@ export class Restify {
 	protected async request<T = unknown>(
 		config: RequestConfig,
 	): Promise<RestifyResponse<T>> {
+		// Use axios if configured
+		if (this.axiosInstance) {
+			return this.requestWithAxios<T>(config);
+		}
+
+		// Default to fetch
+		return this.requestWithFetch<T>(config);
+	}
+
+	private async requestWithFetch<T = unknown>(
+		config: RequestConfig,
+	): Promise<RestifyResponse<T>> {
 		const fetchOptions: RequestInit = {
 			method: config.method,
 			headers: config.headers,
@@ -157,6 +181,34 @@ export class Restify {
 
 		return {
 			data,
+			status: response.status,
+			headers: headersRecord,
+		};
+	}
+
+	private async requestWithAxios<T = unknown>(
+		config: RequestConfig,
+	): Promise<RestifyResponse<T>> {
+		if (!this.axiosInstance) {
+			throw new Error("Axios instance not initialized");
+		}
+
+		const response = await this.axiosInstance.request<T>({
+			method: config.method,
+			url: config.url,
+			headers: config.headers,
+			data: config.body,
+		});
+
+		const headersRecord: Record<string, string> = {};
+		for (const [key, value] of Object.entries(response.headers)) {
+			if (typeof value === "string") {
+				headersRecord[key] = value;
+			}
+		}
+
+		return {
+			data: response.data,
 			status: response.status,
 			headers: headersRecord,
 		};

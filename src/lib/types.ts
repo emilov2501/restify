@@ -1,9 +1,12 @@
 export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
+export type HttpClient = "fetch" | "axios";
+
 export interface RestifyConfig {
 	baseURL: string;
 	headers?: Record<string, string>;
 	timeout?: number;
+	client?: HttpClient;
 }
 
 export interface MethodMetadata {
