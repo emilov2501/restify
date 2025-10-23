@@ -25,22 +25,28 @@ import type {
  * ```
  */
 export class Restify {
-	private config: RestifyConfig;
+	private config?: RestifyConfig;
 	private axiosInstance?: AxiosInstance;
 
-	constructor(config: RestifyConfig) {
-		this.config = config;
-
-		// Initialize axios if client is set to axios
-		if (config.client === "axios") {
-			this.axiosInstance = axios.create({
-				baseURL: config.baseURL,
-				headers: config.headers,
-				timeout: config.timeout,
-			});
+	constructor(configOrAxios: RestifyConfig | AxiosInstance) {
+		// Check if it's an axios instance
+		if (this.isAxiosInstance(configOrAxios)) {
+			this.axiosInstance = configOrAxios;
+		} else {
+			this.config = configOrAxios;
 		}
 
 		this.initializeRoutes();
+	}
+
+	private isAxiosInstance(obj: unknown): obj is AxiosInstance {
+		return (
+			obj !== null &&
+			typeof obj === "object" &&
+			"request" in obj &&
+			"get" in obj &&
+			"post" in obj
+		);
 	}
 
 	private initializeRoutes(): void {
@@ -83,7 +89,9 @@ export class Restify {
 
 		let url = methodMetadata.path;
 		const queryParams: Record<string, string | number | boolean> = {};
-		const headers: Record<string, string> = { ...(this.config.headers ?? {}) };
+		const headers: Record<string, string> = this.config?.headers
+			? { ...this.config.headers }
+			: {};
 		let body: unknown;
 
 		// Process parameters
@@ -115,7 +123,8 @@ export class Restify {
 		// Build full URL
 		const basePath = collectionMetadata?.basePath || "";
 		const fullPath = `${basePath}${url}`;
-		const fullURL = `${this.config.baseURL}${fullPath}`;
+		const baseURL = this.config?.baseURL || "";
+		const fullURL = baseURL ? `${baseURL}${fullPath}` : fullPath;
 
 		// Build query string
 		const queryString = Object.entries(queryParams)
@@ -153,6 +162,12 @@ export class Restify {
 	private async requestWithFetch<T = unknown>(
 		config: RequestConfig,
 	): Promise<RestifyResponse<T>> {
+		if (!this.config?.baseURL && !config.url.startsWith("http")) {
+			throw new Error(
+				"baseURL is required when using fetch without axios instance",
+			);
+		}
+
 		const fetchOptions: RequestInit = {
 			method: config.method,
 			headers: config.headers,

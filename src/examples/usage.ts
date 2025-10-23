@@ -1,12 +1,16 @@
+import axios from "axios";
 import { TodoRepository } from "./TodoRepository.ts";
 
-// Example usage
-const todoRepo = new TodoRepository({
+const client = axios.create({
 	baseURL: "https://jsonplaceholder.typicode.com",
 	headers: {
 		"Content-Type": "application/json",
 	},
+	withCredentials: true,
 });
+
+// Example usage
+const todoRepo = new TodoRepository(client);
 
 // Get all todos
 const allTodos = await todoRepo.getTodos();

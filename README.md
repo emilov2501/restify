@@ -120,11 +120,25 @@ const repo = new TodoRepository({
 ```
 
 #### Axios
+
+**Способ 1: Передать готовый axios instance (рекомендуется)**
+```typescript
+import axios from "axios";
+
+const axiosInstance = axios.create({
+  baseURL: "https://api.example.com",
+  timeout: 5000,
+  headers: { Authorization: "Bearer token" },
+});
+
+// Просто передай instance
+const repo = new TodoRepository(axiosInstance);
+```
+
+**Способ 2: Использовать RestifyConfig**
 ```typescript
 const repo = new TodoRepository({
   baseURL: "https://api.example.com",
-  client: "axios",
-  timeout: 5000,
 });
 ```
 

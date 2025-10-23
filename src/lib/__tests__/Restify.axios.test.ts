@@ -13,18 +13,16 @@ describe("Restify with Axios", () => {
 		vi.clearAllMocks();
 	});
 
-	it("should use axios when client is set to axios", async () => {
+	it("should accept axios instance directly in constructor", async () => {
 		const mockAxiosInstance = {
 			request: vi.fn().mockResolvedValue({
 				data: { id: 1, name: "Test" },
 				status: 200,
 				headers: { "content-type": "application/json" },
 			}),
+			get: vi.fn(),
+			post: vi.fn(),
 		};
-
-		(axios.create as ReturnType<typeof vi.fn>).mockReturnValue(
-			mockAxiosInstance,
-		);
 
 		@Collection("/api")
 		class TestRepository extends Restify {
@@ -34,22 +32,13 @@ describe("Restify with Axios", () => {
 			}
 		}
 
-		const repo = new TestRepository({
-			baseURL: "https://api.example.com",
-			client: "axios",
-		});
-
-		expect(axios.create).toHaveBeenCalledWith({
-			baseURL: "https://api.example.com",
-			headers: undefined,
-			timeout: undefined,
-		});
+		const repo = new TestRepository(mockAxiosInstance as never);
 
 		await repo.getUsers();
 
 		expect(mockAxiosInstance.request).toHaveBeenCalledWith({
 			method: "GET",
-			url: "https://api.example.com/api/users",
+			url: "/api/users",
 			headers: {},
 			data: undefined,
 		});
@@ -83,18 +72,16 @@ describe("Restify with Axios", () => {
 		expect(axios.create).not.toHaveBeenCalled();
 	});
 
-	it("should handle POST with axios", async () => {
+	it("should handle POST with axios instance", async () => {
 		const mockAxiosInstance = {
 			request: vi.fn().mockResolvedValue({
 				data: { id: 1, created: true },
 				status: 201,
 				headers: {},
 			}),
+			get: vi.fn(),
+			post: vi.fn(),
 		};
-
-		(axios.create as ReturnType<typeof vi.fn>).mockReturnValue(
-			mockAxiosInstance,
-		);
 
 		@Collection("/api")
 		class TestRepository extends Restify {
@@ -104,33 +91,28 @@ describe("Restify with Axios", () => {
 			}
 		}
 
-		const repo = new TestRepository({
-			baseURL: "https://api.example.com",
-			client: "axios",
-		});
+		const repo = new TestRepository(mockAxiosInstance as never);
 
 		await repo.createUser({ name: "John" });
 
 		expect(mockAxiosInstance.request).toHaveBeenCalledWith({
 			method: "POST",
-			url: "https://api.example.com/api/users",
+			url: "/api/users",
 			headers: {},
 			data: { name: "John" },
 		});
 	});
 
-	it("should pass headers and timeout to axios", async () => {
+	it("should work with custom axios instance with baseURL", async () => {
 		const mockAxiosInstance = {
 			request: vi.fn().mockResolvedValue({
-				data: {},
+				data: { success: true },
 				status: 200,
 				headers: {},
 			}),
+			get: vi.fn(),
+			post: vi.fn(),
 		};
-
-		(axios.create as ReturnType<typeof vi.fn>).mockReturnValue(
-			mockAxiosInstance,
-		);
 
 		class TestRepository extends Restify {
 			@GET("/test")
@@ -139,17 +121,10 @@ describe("Restify with Axios", () => {
 			}
 		}
 
-		new TestRepository({
-			baseURL: "https://api.example.com",
-			client: "axios",
-			headers: { Authorization: "Bearer token" },
-			timeout: 5000,
-		});
+		const repo = new TestRepository(mockAxiosInstance as never);
+		const result = await repo.test();
 
-		expect(axios.create).toHaveBeenCalledWith({
-			baseURL: "https://api.example.com",
-			headers: { Authorization: "Bearer token" },
-			timeout: 5000,
-		});
+		expect(result.data).toEqual({ success: true });
+		expect(mockAxiosInstance.request).toHaveBeenCalled();
 	});
 });
