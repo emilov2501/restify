@@ -37,6 +37,7 @@ export class TodoRepository extends Restify {
 	}
 
 	@GET("/:id")
+	@Logger()
 	getTodoById(@Path("id") _id: number): Promise<{ data: Todo }> {
 		return {} as Promise<{ data: Todo }>;
 	}

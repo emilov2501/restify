@@ -122,7 +122,7 @@ export class Restify {
 
 		// Log request if logger is enabled
 		if (isLoggerEnabled) {
-			consola.info("HTTP Request", {
+			consola.info(`${propertyKey} →`, {
 				method: methodMetadata.method,
 				url: finalURL,
 				headers: Object.keys(headers).length > 0 ? headers : undefined,
@@ -141,7 +141,7 @@ export class Restify {
 
 			// Log response if logger is enabled
 			if (isLoggerEnabled) {
-				consola.success("HTTP Response", {
+				consola.success(`${propertyKey} ✓`, {
 					status: response.status,
 					data: response.data,
 				});
@@ -162,7 +162,7 @@ export class Restify {
 		} catch (error) {
 			// Log error if logger is enabled
 			if (isLoggerEnabled) {
-				consola.error("HTTP Request Failed", {
+				consola.error(`${propertyKey} ✗`, {
 					method: methodMetadata.method,
 					url: finalURL,
 					error:

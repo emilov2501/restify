@@ -46,7 +46,7 @@ describe("Logger decorator", () => {
 
 		// Check request log
 		expect(consolaInfoSpy).toHaveBeenCalledWith(
-			"HTTP Request",
+			"getUsers →",
 			expect.objectContaining({
 				method: "GET",
 				url: "/api/users",
@@ -55,7 +55,7 @@ describe("Logger decorator", () => {
 
 		// Check response log
 		expect(consolaSuccessSpy).toHaveBeenCalledWith(
-			"HTTP Response",
+			"getUsers ✓",
 			expect.objectContaining({
 				status: 200,
 				data: { id: 1, name: "Test" },
@@ -109,7 +109,7 @@ describe("Logger decorator", () => {
 		await repo.createUser({ name: "John", email: "john@example.com" });
 
 		expect(consolaInfoSpy).toHaveBeenCalledWith(
-			"HTTP Request",
+			"createUser →",
 			expect.objectContaining({
 				method: "POST",
 				url: "/api/users",
@@ -138,7 +138,7 @@ describe("Logger decorator", () => {
 		await expect(repo.getUsers()).rejects.toThrow("Network error");
 
 		expect(consolaErrorSpy).toHaveBeenCalledWith(
-			"HTTP Request Failed",
+			"getUsers ✗",
 			expect.objectContaining({
 				method: "GET",
 				url: "/api/users",
