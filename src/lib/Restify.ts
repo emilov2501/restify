@@ -121,11 +121,16 @@ export class Restify {
 		};
 
 		if (config.body) {
-			fetchOptions.body = JSON.stringify(config.body);
-			fetchOptions.headers = {
-				...fetchOptions.headers,
-				"Content-Type": "application/json",
-			};
+			if (config.body instanceof FormData) {
+				// Let browser set Content-Type with boundary for FormData
+				fetchOptions.body = config.body;
+			} else {
+				fetchOptions.body = JSON.stringify(config.body);
+				fetchOptions.headers = {
+					...fetchOptions.headers,
+					"Content-Type": "application/json",
+				};
+			}
 		}
 
 		const response = await fetch(config.url, fetchOptions);

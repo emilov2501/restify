@@ -394,6 +394,118 @@ describe("Restify", () => {
     });
   });
 
+  describe("FormData support", () => {
+    it("should handle FormData in POST request", async () => {
+      const mockResponse = {
+        json: () => Promise.resolve({ id: 1, success: true }),
+        status: 201,
+        headers: new Map(),
+      };
+      
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(mockResponse);
+
+      @Collection("/api")
+      class TestRepository extends Restify {
+        @POST("/upload")
+        uploadFile(@Body() _data: FormData) {
+          return {} as Promise<{ data: unknown }>;
+        }
+      }
+
+      const repo = new TestRepository({
+        baseURL: "https://api.example.com",
+      });
+
+      const formData = new FormData();
+      formData.append("file", "test.txt");
+      formData.append("name", "Test File");
+
+      await repo.uploadFile(formData);
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        "https://api.example.com/api/upload",
+        expect.objectContaining({
+          method: "POST",
+          body: formData,
+        })
+      );
+
+      // Should NOT set Content-Type header for FormData (browser handles it)
+      const callOptions = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1] as RequestInit;
+      expect(callOptions.headers).not.toHaveProperty("Content-Type");
+    });
+
+    it("should handle FormData in PUT request", async () => {
+      const mockResponse = {
+        json: () => Promise.resolve({ id: 1, updated: true }),
+        status: 200,
+        headers: new Map(),
+      };
+      
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(mockResponse);
+
+      @Collection("/api")
+      class TestRepository extends Restify {
+        @PUT("/files/:id")
+        updateFile(@Path("id") _id: number, @Body() _data: FormData) {
+          return {} as Promise<{ data: unknown }>;
+        }
+      }
+
+      const repo = new TestRepository({
+        baseURL: "https://api.example.com",
+      });
+
+      const formData = new FormData();
+      formData.append("file", "updated.txt");
+
+      await repo.updateFile(123, formData);
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        "https://api.example.com/api/files/123",
+        expect.objectContaining({
+          method: "PUT",
+          body: formData,
+        })
+      );
+    });
+
+    it("should handle regular JSON body when not FormData", async () => {
+      const mockResponse = {
+        json: () => Promise.resolve({ id: 1 }),
+        status: 200,
+        headers: new Map(),
+      };
+      
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(mockResponse);
+
+      @Collection("/api")
+      class TestRepository extends Restify {
+        @POST("/users")
+        createUser(@Body() _data: unknown) {
+          return {} as Promise<{ data: unknown }>;
+        }
+      }
+
+      const repo = new TestRepository({
+        baseURL: "https://api.example.com",
+      });
+
+      await repo.createUser({ name: "Test" });
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        "https://api.example.com/api/users",
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({ name: "Test" }),
+          headers: expect.objectContaining({
+            "Content-Type": "application/json",
+          }),
+        })
+      );
+    });
+  });
+
   describe("Complex scenarios", () => {
     it("should handle all parameter types together", async () => {
       const mockResponse = {
