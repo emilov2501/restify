@@ -20,7 +20,7 @@ export function QueryMap(): ParameterDecorator {
 		target: object,
 		propertyKey: string | symbol | undefined,
 		parameterIndex: number,
-	) => {
+	): void => {
 		if (!propertyKey) return;
 
 		const existingParameters: ParameterMetadata[] =
