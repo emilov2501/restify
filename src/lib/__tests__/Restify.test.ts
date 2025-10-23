@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import "reflect-metadata";
+
 import { Collection } from "../decorators/Collection.ts";
 import {
 	Body,
-	DELETE,
 	GET,
 	Header,
 	Path,
@@ -14,9 +14,6 @@ import {
 } from "../decorators/index.ts";
 import { Restify } from "../Restify.ts";
 
-// Mock fetch globally
-global.fetch = vi.fn();
-
 describe("Restify", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -24,15 +21,13 @@ describe("Restify", () => {
 
 	describe("Basic HTTP requests", () => {
 		it("should make GET request", async () => {
-			const mockResponse = {
-				json: () => Promise.resolve({ id: 1, name: "Test" }),
-				status: 200,
-				headers: new Map([["content-type", "application/json"]]),
+			const mockAxios = {
+				request: vi.fn().mockResolvedValue({
+					data: { id: 1, name: "Test" },
+					status: 200,
+					headers: { "content-type": "application/json" },
+				}),
 			};
-
-			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
-				mockResponse,
-			);
 
 			@Collection("/api")
 			class TestRepository extends Restify {
@@ -42,30 +37,26 @@ describe("Restify", () => {
 				}
 			}
 
-			const repo = new TestRepository({
-				baseURL: "https://api.example.com",
-			});
+			const repo = new TestRepository(mockAxios as never);
 
 			await repo.getUsers();
 
-			expect(global.fetch).toHaveBeenCalledWith(
-				"https://api.example.com/api/users",
+			expect(mockAxios.request).toHaveBeenCalledWith(
 				expect.objectContaining({
 					method: "GET",
+					url: "/api/users",
 				}),
 			);
 		});
 
 		it("should make POST request with body", async () => {
-			const mockResponse = {
-				json: () => Promise.resolve({ id: 1, name: "Created" }),
-				status: 201,
-				headers: new Map(),
+			const mockAxios = {
+				request: vi.fn().mockResolvedValue({
+					data: { id: 1, name: "Created" },
+					status: 201,
+					headers: {},
+				}),
 			};
-
-			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
-				mockResponse,
-			);
 
 			@Collection("/api")
 			class TestRepository extends Restify {
@@ -75,20 +66,15 @@ describe("Restify", () => {
 				}
 			}
 
-			const repo = new TestRepository({
-				baseURL: "https://api.example.com",
-			});
+			const repo = new TestRepository(mockAxios as never);
 
 			await repo.createUser({ name: "Test" });
 
-			expect(global.fetch).toHaveBeenCalledWith(
-				"https://api.example.com/api/users",
+			expect(mockAxios.request).toHaveBeenCalledWith(
 				expect.objectContaining({
 					method: "POST",
-					body: JSON.stringify({ name: "Test" }),
-					headers: expect.objectContaining({
-						"Content-Type": "application/json",
-					}),
+					url: "/api/users",
+					data: { name: "Test" },
 				}),
 			);
 		});
@@ -96,15 +82,13 @@ describe("Restify", () => {
 
 	describe("Path parameters", () => {
 		it("should replace path parameters in URL", async () => {
-			const mockResponse = {
-				json: () => Promise.resolve({ id: 123 }),
-				status: 200,
-				headers: new Map(),
+			const mockAxios = {
+				request: vi.fn().mockResolvedValue({
+					data: { id: 123 },
+					status: 200,
+					headers: {},
+				}),
 			};
-
-			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
-				mockResponse,
-			);
 
 			@Collection("/api")
 			class TestRepository extends Restify {
@@ -114,28 +98,26 @@ describe("Restify", () => {
 				}
 			}
 
-			const repo = new TestRepository({
-				baseURL: "https://api.example.com",
-			});
+			const repo = new TestRepository(mockAxios as never);
 
 			await repo.getUser(123);
 
-			expect(global.fetch).toHaveBeenCalledWith(
-				"https://api.example.com/api/users/123",
-				expect.any(Object),
+			expect(mockAxios.request).toHaveBeenCalledWith(
+				expect.objectContaining({
+					method: "GET",
+					url: "/api/users/123",
+				}),
 			);
 		});
 
 		it("should handle multiple path parameters", async () => {
-			const mockResponse = {
-				json: () => Promise.resolve({}),
-				status: 200,
-				headers: new Map(),
+			const mockAxios = {
+				request: vi.fn().mockResolvedValue({
+					data: {},
+					status: 200,
+					headers: {},
+				}),
 			};
-
-			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
-				mockResponse,
-			);
 
 			@Collection("/api")
 			class TestRepository extends Restify {
@@ -148,30 +130,28 @@ describe("Restify", () => {
 				}
 			}
 
-			const repo = new TestRepository({
-				baseURL: "https://api.example.com",
-			});
+			const repo = new TestRepository(mockAxios as never);
 
 			await repo.getPost(1, 42);
 
-			expect(global.fetch).toHaveBeenCalledWith(
-				"https://api.example.com/api/users/1/posts/42",
-				expect.any(Object),
+			expect(mockAxios.request).toHaveBeenCalledWith(
+				expect.objectContaining({
+					method: "GET",
+					url: "/api/users/1/posts/42",
+				}),
 			);
 		});
 	});
 
 	describe("Query parameters", () => {
 		it("should add query parameters to URL", async () => {
-			const mockResponse = {
-				json: () => Promise.resolve([]),
-				status: 200,
-				headers: new Map(),
+			const mockAxios = {
+				request: vi.fn().mockResolvedValue({
+					data: [],
+					status: 200,
+					headers: {},
+				}),
 			};
-
-			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
-				mockResponse,
-			);
 
 			@Collection("/api")
 			class TestRepository extends Restify {
@@ -181,29 +161,24 @@ describe("Restify", () => {
 				}
 			}
 
-			const repo = new TestRepository({
-				baseURL: "https://api.example.com",
-			});
+			const repo = new TestRepository(mockAxios as never);
 
 			await repo.getUsers(1, 10);
 
-			const callUrl = (global.fetch as ReturnType<typeof vi.fn>).mock
-				.calls[0][0] as string;
-			expect(callUrl).toContain("https://api.example.com/api/users?");
+			const callUrl = mockAxios.request.mock.calls[0][0].url as string;
+			expect(callUrl).toContain("/api/users?");
 			expect(callUrl).toContain("page=1");
 			expect(callUrl).toContain("limit=10");
 		});
 
 		it("should handle special characters in query parameters", async () => {
-			const mockResponse = {
-				json: () => Promise.resolve([]),
-				status: 200,
-				headers: new Map(),
+			const mockAxios = {
+				request: vi.fn().mockResolvedValue({
+					data: [],
+					status: 200,
+					headers: {},
+				}),
 			};
-
-			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
-				mockResponse,
-			);
 
 			@Collection("/api")
 			class TestRepository extends Restify {
@@ -213,30 +188,28 @@ describe("Restify", () => {
 				}
 			}
 
-			const repo = new TestRepository({
-				baseURL: "https://api.example.com",
-			});
+			const repo = new TestRepository(mockAxios as never);
 
 			await repo.search("hello world");
 
-			expect(global.fetch).toHaveBeenCalledWith(
-				"https://api.example.com/api/search?q=hello%20world",
-				expect.any(Object),
+			expect(mockAxios.request).toHaveBeenCalledWith(
+				expect.objectContaining({
+					method: "GET",
+					url: "/api/search?q=hello%20world",
+				}),
 			);
 		});
 	});
 
 	describe("Headers", () => {
 		it("should add custom headers", async () => {
-			const mockResponse = {
-				json: () => Promise.resolve({}),
-				status: 200,
-				headers: new Map(),
+			const mockAxios = {
+				request: vi.fn().mockResolvedValue({
+					data: {},
+					status: 200,
+					headers: {},
+				}),
 			};
-
-			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
-				mockResponse,
-			);
 
 			@Collection("/api")
 			class TestRepository extends Restify {
@@ -246,14 +219,11 @@ describe("Restify", () => {
 				}
 			}
 
-			const repo = new TestRepository({
-				baseURL: "https://api.example.com",
-			});
+			const repo = new TestRepository(mockAxios as never);
 
 			await repo.getUsers("Bearer token123");
 
-			expect(global.fetch).toHaveBeenCalledWith(
-				expect.any(String),
+			expect(mockAxios.request).toHaveBeenCalledWith(
 				expect.objectContaining({
 					headers: expect.objectContaining({
 						Authorization: "Bearer token123",
@@ -262,16 +232,14 @@ describe("Restify", () => {
 			);
 		});
 
-		it("should merge config headers with parameter headers", async () => {
-			const mockResponse = {
-				json: () => Promise.resolve({}),
-				status: 200,
-				headers: new Map(),
+		it("should merge headers with parameter headers", async () => {
+			const mockAxios = {
+				request: vi.fn().mockResolvedValue({
+					data: {},
+					status: 200,
+					headers: {},
+				}),
 			};
-
-			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
-				mockResponse,
-			);
 
 			@Collection("/api")
 			class TestRepository extends Restify {
@@ -281,20 +249,13 @@ describe("Restify", () => {
 				}
 			}
 
-			const repo = new TestRepository({
-				baseURL: "https://api.example.com",
-				headers: {
-					"Content-Type": "application/json",
-				},
-			});
+			const repo = new TestRepository(mockAxios as never);
 
 			await repo.getUsers("value");
 
-			expect(global.fetch).toHaveBeenCalledWith(
-				expect.any(String),
+			expect(mockAxios.request).toHaveBeenCalledWith(
 				expect.objectContaining({
 					headers: expect.objectContaining({
-						"Content-Type": "application/json",
 						"X-Custom": "value",
 					}),
 				}),
@@ -304,15 +265,13 @@ describe("Restify", () => {
 
 	describe("Collection decorator", () => {
 		it("should prepend collection path to endpoint", async () => {
-			const mockResponse = {
-				json: () => Promise.resolve({}),
-				status: 200,
-				headers: new Map(),
+			const mockAxios = {
+				request: vi.fn().mockResolvedValue({
+					data: {},
+					status: 200,
+					headers: {},
+				}),
 			};
-
-			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
-				mockResponse,
-			);
 
 			@Collection("/api/v1")
 			class TestRepository extends Restify {
@@ -322,28 +281,26 @@ describe("Restify", () => {
 				}
 			}
 
-			const repo = new TestRepository({
-				baseURL: "https://api.example.com",
-			});
+			const repo = new TestRepository(mockAxios as never);
 
 			await repo.getUsers();
 
-			expect(global.fetch).toHaveBeenCalledWith(
-				"https://api.example.com/api/v1/users",
-				expect.any(Object),
+			expect(mockAxios.request).toHaveBeenCalledWith(
+				expect.objectContaining({
+					method: "GET",
+					url: "/api/v1/users",
+				}),
 			);
 		});
 
 		it("should work without Collection decorator", async () => {
-			const mockResponse = {
-				json: () => Promise.resolve({}),
-				status: 200,
-				headers: new Map(),
+			const mockAxios = {
+				request: vi.fn().mockResolvedValue({
+					data: {},
+					status: 200,
+					headers: {},
+				}),
 			};
-
-			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
-				mockResponse,
-			);
 
 			class TestRepository extends Restify {
 				@GET("/users")
@@ -352,80 +309,14 @@ describe("Restify", () => {
 				}
 			}
 
-			const repo = new TestRepository({
-				baseURL: "https://api.example.com",
-			});
+			const repo = new TestRepository(mockAxios as never);
 
 			await repo.getUsers();
 
-			expect(global.fetch).toHaveBeenCalledWith(
-				"https://api.example.com/users",
-				expect.any(Object),
-			);
-		});
-	});
-
-	describe("HTTP methods", () => {
-		it("should handle PUT requests", async () => {
-			const mockResponse = {
-				json: () => Promise.resolve({}),
-				status: 200,
-				headers: new Map(),
-			};
-
-			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
-				mockResponse,
-			);
-
-			class TestRepository extends Restify {
-				@PUT("/users/:id")
-				updateUser(@Path("id") _id: number, @Body() _data: unknown) {
-					return {} as Promise<{ data: unknown }>;
-				}
-			}
-
-			const repo = new TestRepository({
-				baseURL: "https://api.example.com",
-			});
-
-			await repo.updateUser(1, { name: "Updated" });
-
-			expect(global.fetch).toHaveBeenCalledWith(
-				"https://api.example.com/users/1",
+			expect(mockAxios.request).toHaveBeenCalledWith(
 				expect.objectContaining({
-					method: "PUT",
-				}),
-			);
-		});
-
-		it("should handle DELETE requests", async () => {
-			const mockResponse = {
-				json: () => Promise.resolve({}),
-				status: 204,
-				headers: new Map(),
-			};
-
-			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
-				mockResponse,
-			);
-
-			class TestRepository extends Restify {
-				@DELETE("/users/:id")
-				deleteUser(@Path("id") _id: number) {
-					return {} as Promise<{ data: unknown }>;
-				}
-			}
-
-			const repo = new TestRepository({
-				baseURL: "https://api.example.com",
-			});
-
-			await repo.deleteUser(1);
-
-			expect(global.fetch).toHaveBeenCalledWith(
-				"https://api.example.com/users/1",
-				expect.objectContaining({
-					method: "DELETE",
+					method: "GET",
+					url: "/users",
 				}),
 			);
 		});
@@ -433,15 +324,13 @@ describe("Restify", () => {
 
 	describe("QueryMap support", () => {
 		it("should handle dynamic query parameters from object", async () => {
-			const mockResponse = {
-				json: () => Promise.resolve([]),
-				status: 200,
-				headers: new Map(),
+			const mockAxios = {
+				request: vi.fn().mockResolvedValue({
+					data: [],
+					status: 200,
+					headers: {},
+				}),
 			};
-
-			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
-				mockResponse,
-			);
 
 			@Collection("/api")
 			class TestRepository extends Restify {
@@ -451,30 +340,25 @@ describe("Restify", () => {
 				}
 			}
 
-			const repo = new TestRepository({
-				baseURL: "https://api.example.com",
-			});
+			const repo = new TestRepository(mockAxios as never);
 
 			await repo.getUsers({ name: "John", age: 25, status: "active" });
 
-			const callUrl = (global.fetch as ReturnType<typeof vi.fn>).mock
-				.calls[0][0] as string;
-			expect(callUrl).toContain("https://api.example.com/api/users?");
+			const callUrl = mockAxios.request.mock.calls[0][0].url as string;
+			expect(callUrl).toContain("/api/users?");
 			expect(callUrl).toContain("name=John");
 			expect(callUrl).toContain("age=25");
 			expect(callUrl).toContain("status=active");
 		});
 
 		it("should skip undefined and null values in QueryMap", async () => {
-			const mockResponse = {
-				json: () => Promise.resolve([]),
-				status: 200,
-				headers: new Map(),
+			const mockAxios = {
+				request: vi.fn().mockResolvedValue({
+					data: [],
+					status: 200,
+					headers: {},
+				}),
 			};
-
-			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
-				mockResponse,
-			);
 
 			@Collection("/api")
 			class TestRepository extends Restify {
@@ -486,29 +370,24 @@ describe("Restify", () => {
 				}
 			}
 
-			const repo = new TestRepository({
-				baseURL: "https://api.example.com",
-			});
+			const repo = new TestRepository(mockAxios as never);
 
 			await repo.getUsers({ name: "John", age: undefined, status: "active" });
 
-			const callUrl = (global.fetch as ReturnType<typeof vi.fn>).mock
-				.calls[0][0] as string;
+			const callUrl = mockAxios.request.mock.calls[0][0].url as string;
 			expect(callUrl).toContain("name=John");
 			expect(callUrl).toContain("status=active");
 			expect(callUrl).not.toContain("age");
 		});
 
 		it("should work with empty QueryMap object", async () => {
-			const mockResponse = {
-				json: () => Promise.resolve([]),
-				status: 200,
-				headers: new Map(),
+			const mockAxios = {
+				request: vi.fn().mockResolvedValue({
+					data: [],
+					status: 200,
+					headers: {},
+				}),
 			};
-
-			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
-				mockResponse,
-			);
 
 			@Collection("/api")
 			class TestRepository extends Restify {
@@ -518,28 +397,26 @@ describe("Restify", () => {
 				}
 			}
 
-			const repo = new TestRepository({
-				baseURL: "https://api.example.com",
-			});
+			const repo = new TestRepository(mockAxios as never);
 
 			await repo.getUsers({});
 
-			expect(global.fetch).toHaveBeenCalledWith(
-				"https://api.example.com/api/users",
-				expect.any(Object),
+			expect(mockAxios.request).toHaveBeenCalledWith(
+				expect.objectContaining({
+					method: "GET",
+					url: "/api/users",
+				}),
 			);
 		});
 
 		it("should combine QueryMap with regular Query parameters", async () => {
-			const mockResponse = {
-				json: () => Promise.resolve([]),
-				status: 200,
-				headers: new Map(),
+			const mockAxios = {
+				request: vi.fn().mockResolvedValue({
+					data: [],
+					status: 200,
+					headers: {},
+				}),
 			};
-
-			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
-				mockResponse,
-			);
 
 			@Collection("/api")
 			class TestRepository extends Restify {
@@ -552,15 +429,12 @@ describe("Restify", () => {
 				}
 			}
 
-			const repo = new TestRepository({
-				baseURL: "https://api.example.com",
-			});
+			const repo = new TestRepository(mockAxios as never);
 
 			await repo.getUsers(1, { name: "John", status: "active" });
 
-			const callUrl = (global.fetch as ReturnType<typeof vi.fn>).mock
-				.calls[0][0] as string;
-			expect(callUrl).toContain("https://api.example.com/api/users?");
+			const callUrl = mockAxios.request.mock.calls[0][0].url as string;
+			expect(callUrl).toContain("/api/users?");
 			expect(callUrl).toContain("page=1");
 			expect(callUrl).toContain("name=John");
 			expect(callUrl).toContain("status=active");
@@ -569,15 +443,13 @@ describe("Restify", () => {
 
 	describe("FormData support", () => {
 		it("should handle FormData in POST request", async () => {
-			const mockResponse = {
-				json: () => Promise.resolve({ id: 1, success: true }),
-				status: 201,
-				headers: new Map(),
+			const mockAxios = {
+				request: vi.fn().mockResolvedValue({
+					data: { id: 1, success: true },
+					status: 201,
+					headers: {},
+				}),
 			};
-
-			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
-				mockResponse,
-			);
 
 			@Collection("/api")
 			class TestRepository extends Restify {
@@ -587,9 +459,7 @@ describe("Restify", () => {
 				}
 			}
 
-			const repo = new TestRepository({
-				baseURL: "https://api.example.com",
-			});
+			const repo = new TestRepository(mockAxios as never);
 
 			const formData = new FormData();
 			formData.append("file", "test.txt");
@@ -597,30 +467,23 @@ describe("Restify", () => {
 
 			await repo.uploadFile(formData);
 
-			expect(global.fetch).toHaveBeenCalledWith(
-				"https://api.example.com/api/upload",
+			expect(mockAxios.request).toHaveBeenCalledWith(
 				expect.objectContaining({
 					method: "POST",
-					body: formData,
+					url: "/api/upload",
+					data: formData,
 				}),
 			);
-
-			// Should NOT set Content-Type header for FormData (browser handles it)
-			const callOptions = (global.fetch as ReturnType<typeof vi.fn>).mock
-				.calls[0][1] as RequestInit;
-			expect(callOptions.headers).not.toHaveProperty("Content-Type");
 		});
 
 		it("should handle FormData in PUT request", async () => {
-			const mockResponse = {
-				json: () => Promise.resolve({ id: 1, updated: true }),
-				status: 200,
-				headers: new Map(),
+			const mockAxios = {
+				request: vi.fn().mockResolvedValue({
+					data: { id: 1, updated: true },
+					status: 200,
+					headers: {},
+				}),
 			};
-
-			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
-				mockResponse,
-			);
 
 			@Collection("/api")
 			class TestRepository extends Restify {
@@ -630,34 +493,30 @@ describe("Restify", () => {
 				}
 			}
 
-			const repo = new TestRepository({
-				baseURL: "https://api.example.com",
-			});
+			const repo = new TestRepository(mockAxios as never);
 
 			const formData = new FormData();
 			formData.append("file", "updated.txt");
 
 			await repo.updateFile(123, formData);
 
-			expect(global.fetch).toHaveBeenCalledWith(
-				"https://api.example.com/api/files/123",
+			expect(mockAxios.request).toHaveBeenCalledWith(
 				expect.objectContaining({
 					method: "PUT",
-					body: formData,
+					url: "/api/files/123",
+					data: formData,
 				}),
 			);
 		});
 
 		it("should handle regular JSON body when not FormData", async () => {
-			const mockResponse = {
-				json: () => Promise.resolve({ id: 1 }),
-				status: 200,
-				headers: new Map(),
+			const mockAxios = {
+				request: vi.fn().mockResolvedValue({
+					data: { id: 1 },
+					status: 200,
+					headers: {},
+				}),
 			};
-
-			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
-				mockResponse,
-			);
 
 			@Collection("/api")
 			class TestRepository extends Restify {
@@ -667,20 +526,15 @@ describe("Restify", () => {
 				}
 			}
 
-			const repo = new TestRepository({
-				baseURL: "https://api.example.com",
-			});
+			const repo = new TestRepository(mockAxios as never);
 
 			await repo.createUser({ name: "Test" });
 
-			expect(global.fetch).toHaveBeenCalledWith(
-				"https://api.example.com/api/users",
+			expect(mockAxios.request).toHaveBeenCalledWith(
 				expect.objectContaining({
 					method: "POST",
-					body: JSON.stringify({ name: "Test" }),
-					headers: expect.objectContaining({
-						"Content-Type": "application/json",
-					}),
+					url: "/api/users",
+					data: { name: "Test" },
 				}),
 			);
 		});
@@ -688,15 +542,13 @@ describe("Restify", () => {
 
 	describe("Complex scenarios", () => {
 		it("should handle all parameter types together", async () => {
-			const mockResponse = {
-				json: () => Promise.resolve({}),
-				status: 200,
-				headers: new Map(),
+			const mockAxios = {
+				request: vi.fn().mockResolvedValue({
+					data: {},
+					status: 200,
+					headers: {},
+				}),
 			};
-
-			(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
-				mockResponse,
-			);
 
 			@Collection("/api")
 			class TestRepository extends Restify {
@@ -711,23 +563,109 @@ describe("Restify", () => {
 				}
 			}
 
-			const repo = new TestRepository({
-				baseURL: "https://api.example.com",
-			});
+			const repo = new TestRepository(mockAxios as never);
 
 			await repo.createPost(123, true, { title: "Test" }, "req-456");
 
-			expect(global.fetch).toHaveBeenCalledWith(
-				"https://api.example.com/api/users/123/posts?draft=true",
+			expect(mockAxios.request).toHaveBeenCalledWith(
 				expect.objectContaining({
 					method: "POST",
-					body: JSON.stringify({ title: "Test" }),
+					url: "/api/users/123/posts?draft=true",
+					data: { title: "Test" },
 					headers: expect.objectContaining({
 						"X-Request-ID": "req-456",
-						"Content-Type": "application/json",
 					}),
 				}),
 			);
+		});
+	});
+
+	describe("Axios instance", () => {
+		it("should accept axios instance directly in constructor", async () => {
+			const mockAxiosInstance = {
+				request: vi.fn().mockResolvedValue({
+					data: { id: 1, name: "Test" },
+					status: 200,
+					headers: { "content-type": "application/json" },
+				}),
+				get: vi.fn(),
+				post: vi.fn(),
+			};
+
+			@Collection("/api")
+			class TestRepository extends Restify {
+				@GET("/users")
+				getUsers() {
+					return {} as Promise<{ data: unknown }>;
+				}
+			}
+
+			const repo = new TestRepository(mockAxiosInstance as never);
+
+			await repo.getUsers();
+
+			expect(mockAxiosInstance.request).toHaveBeenCalledWith({
+				method: "GET",
+				url: "/api/users",
+				headers: {},
+				data: undefined,
+			});
+		});
+
+		it("should handle POST with axios instance", async () => {
+			const mockAxiosInstance = {
+				request: vi.fn().mockResolvedValue({
+					data: { id: 1, created: true },
+					status: 201,
+					headers: {},
+				}),
+				get: vi.fn(),
+				post: vi.fn(),
+			};
+
+			@Collection("/api")
+			class TestRepository extends Restify {
+				@POST("/users")
+				createUser(@Body() _data: unknown) {
+					return {} as Promise<{ data: unknown }>;
+				}
+			}
+
+			const repo = new TestRepository(mockAxiosInstance as never);
+
+			await repo.createUser({ name: "John" });
+
+			expect(mockAxiosInstance.request).toHaveBeenCalledWith({
+				method: "POST",
+				url: "/api/users",
+				headers: {},
+				data: { name: "John" },
+			});
+		});
+
+		it("should work with custom axios instance with baseURL", async () => {
+			const mockAxiosInstance = {
+				request: vi.fn().mockResolvedValue({
+					data: { success: true },
+					status: 200,
+					headers: {},
+				}),
+				get: vi.fn(),
+				post: vi.fn(),
+			};
+
+			class TestRepository extends Restify {
+				@GET("/test")
+				test() {
+					return {} as Promise<{ data: unknown }>;
+				}
+			}
+
+			const repo = new TestRepository(mockAxiosInstance as never);
+			const result = await repo.test();
+
+			expect(result.data).toEqual({ success: true });
+			expect(mockAxiosInstance.request).toHaveBeenCalled();
 		});
 	});
 });

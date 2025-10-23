@@ -1,11 +1,9 @@
 import "reflect-metadata";
-import axios, { type AxiosInstance } from "axios";
+import type { AxiosInstance } from "axios";
 import { METADATA_KEYS } from "./constants.ts";
 import type {
 	MethodMetadata,
 	ParameterMetadata,
-	RequestConfig,
-	RestifyConfig,
 	RestifyResponse,
 } from "./types.ts";
 
@@ -25,28 +23,11 @@ import type {
  * ```
  */
 export class Restify {
-	private config?: RestifyConfig;
-	private axiosInstance?: AxiosInstance;
+	private axiosInstance: AxiosInstance;
 
-	constructor(configOrAxios: RestifyConfig | AxiosInstance) {
-		// Check if it's an axios instance
-		if (this.isAxiosInstance(configOrAxios)) {
-			this.axiosInstance = configOrAxios;
-		} else {
-			this.config = configOrAxios;
-		}
-
+	constructor(axiosInstance: AxiosInstance) {
+		this.axiosInstance = axiosInstance;
 		this.initializeRoutes();
-	}
-
-	private isAxiosInstance(obj: unknown): obj is AxiosInstance {
-		return (
-			obj !== null &&
-			typeof obj === "object" &&
-			"request" in obj &&
-			"get" in obj &&
-			"post" in obj
-		);
 	}
 
 	private initializeRoutes(): void {
@@ -89,9 +70,7 @@ export class Restify {
 
 		let url = methodMetadata.path;
 		const queryParams: Record<string, string | number | boolean> = {};
-		const headers: Record<string, string> = this.config?.headers
-			? { ...this.config.headers }
-			: {};
+		const headers: Record<string, string> = {};
 		let body: unknown;
 
 		// Process parameters
@@ -123,8 +102,6 @@ export class Restify {
 		// Build full URL
 		const basePath = collectionMetadata?.basePath || "";
 		const fullPath = `${basePath}${url}`;
-		const baseURL = this.config?.baseURL || "";
-		const fullURL = baseURL ? `${baseURL}${fullPath}` : fullPath;
 
 		// Build query string
 		const queryString = Object.entries(queryParams)
@@ -134,85 +111,14 @@ export class Restify {
 			)
 			.join("&");
 
-		const finalURL = queryString ? `${fullURL}?${queryString}` : fullURL;
+		const finalURL = queryString ? `${fullPath}?${queryString}` : fullPath;
 
-		// Execute request
-		const requestConfig: RequestConfig = {
+		// Execute request with axios
+		const response = await this.axiosInstance.request<T>({
 			method: methodMetadata.method,
 			url: finalURL,
 			headers,
-			body,
-		};
-
-		return this.request<T>(requestConfig);
-	}
-
-	protected async request<T = unknown>(
-		config: RequestConfig,
-	): Promise<RestifyResponse<T>> {
-		// Use axios if configured
-		if (this.axiosInstance) {
-			return this.requestWithAxios<T>(config);
-		}
-
-		// Default to fetch
-		return this.requestWithFetch<T>(config);
-	}
-
-	private async requestWithFetch<T = unknown>(
-		config: RequestConfig,
-	): Promise<RestifyResponse<T>> {
-		if (!this.config?.baseURL && !config.url.startsWith("http")) {
-			throw new Error(
-				"baseURL is required when using fetch without axios instance",
-			);
-		}
-
-		const fetchOptions: RequestInit = {
-			method: config.method,
-			headers: config.headers,
-		};
-
-		if (config.body) {
-			if (config.body instanceof FormData) {
-				// Let browser set Content-Type with boundary for FormData
-				fetchOptions.body = config.body;
-			} else {
-				fetchOptions.body = JSON.stringify(config.body);
-				fetchOptions.headers = {
-					...fetchOptions.headers,
-					"Content-Type": "application/json",
-				};
-			}
-		}
-
-		const response = await fetch(config.url, fetchOptions);
-		const data = (await response.json()) as T;
-
-		const headersRecord: Record<string, string> = {};
-		response.headers.forEach((value, key) => {
-			headersRecord[key] = value;
-		});
-
-		return {
-			data,
-			status: response.status,
-			headers: headersRecord,
-		};
-	}
-
-	private async requestWithAxios<T = unknown>(
-		config: RequestConfig,
-	): Promise<RestifyResponse<T>> {
-		if (!this.axiosInstance) {
-			throw new Error("Axios instance not initialized");
-		}
-
-		const response = await this.axiosInstance.request<T>({
-			method: config.method,
-			url: config.url,
-			headers: config.headers,
-			data: config.body,
+			data: body,
 		});
 
 		const headersRecord: Record<string, string> = {};
