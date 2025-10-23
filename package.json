@@ -10,18 +10,18 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
-    "lint": "eslint src --ext .ts",
+    "lint": "biome check src",
+    "lint:fix": "biome check --write src",
+    "format": "biome format --write src",
     "typecheck": "tsc --noEmit",
     "prepare": "husky install"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.2.7",
     "@commitlint/cli": "^18.0.0",
     "@commitlint/config-conventional": "^18.0.0",
     "@types/node": "^20.0.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
     "@vitest/ui": "^1.0.0",
-    "eslint": "^8.0.0",
     "husky": "^8.0.0",
     "lint-staged": "^15.0.0",
     "typescript": "~5.9.3",
@@ -33,7 +33,7 @@
   },
   "lint-staged": {
     "*.ts": [
-      "eslint --fix",
+      "biome check --write",
       "tsc --noEmit"
     ]
   }

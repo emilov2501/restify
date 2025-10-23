@@ -45,80 +45,86 @@ export class Restify {
 			) as MethodMetadata | undefined;
 
 			if (methodMetadata) {
-        proto[methodName] = async (...args: unknown[]) => {
-          return this.executeRequest<unknown>(methodMetadata, args, methodName);
-        };
+				proto[methodName] = async (...args: unknown[]) => {
+					return this.executeRequest<unknown>(methodMetadata, args, methodName);
+				};
 			}
 		}
 	}
 
-  private async executeRequest<T = unknown>(
-    methodMetadata: MethodMetadata,
-    args: readonly unknown[],
-    propertyKey: string
-  ): Promise<RestifyResponse<T>> {
-    const proto = Object.getPrototypeOf(this) as object;
-    const parameters = (Reflect.getMetadata(
-      METADATA_KEYS.PARAMETERS,
-      proto,
-      propertyKey
-    ) || []) as ParameterMetadata[];
+	private async executeRequest<T = unknown>(
+		methodMetadata: MethodMetadata,
+		args: readonly unknown[],
+		propertyKey: string,
+	): Promise<RestifyResponse<T>> {
+		const proto = Object.getPrototypeOf(this) as object;
+		const parameters = (Reflect.getMetadata(
+			METADATA_KEYS.PARAMETERS,
+			proto,
+			propertyKey,
+		) || []) as ParameterMetadata[];
 
-    const collectionMetadata = Reflect.getMetadata(
-      METADATA_KEYS.COLLECTION,
-      this.constructor
-    ) as { basePath: string } | undefined;
+		const collectionMetadata = Reflect.getMetadata(
+			METADATA_KEYS.COLLECTION,
+			this.constructor,
+		) as { basePath: string } | undefined;
 
-    let url = methodMetadata.path;
-    const queryParams: Record<string, string | number | boolean> = {};
-    const headers: Record<string, string> = { ...(this.config.headers ?? {}) };
-    let body: unknown;
+		let url = methodMetadata.path;
+		const queryParams: Record<string, string | number | boolean> = {};
+		const headers: Record<string, string> = { ...(this.config.headers ?? {}) };
+		let body: unknown;
 
-    // Process parameters
-    for (const param of parameters) {
-      const value = args[param.index];
+		// Process parameters
+		for (const param of parameters) {
+			const value = args[param.index];
 
-      if (param.type === "query" && param.key && value !== undefined) {
-        queryParams[param.key] = value as string | number | boolean;
-      } else if (param.type === "queryMap" && value !== undefined) {
-        // Handle dynamic query parameters from object
-        const queryObj = value as Record<string, string | number | boolean | undefined>;
-        for (const [key, val] of Object.entries(queryObj)) {
-          if (val !== undefined && val !== null) {
-            queryParams[key] = val;
-          }
-        }
-      } else if (param.type === "path" && param.key && value !== undefined) {
-        url = url.replace(`:${param.key}`, String(value));
-      } else if (param.type === "body") {
-        body = value;
-      } else if (param.type === "header" && param.key && value !== undefined) {
-        headers[param.key] = String(value);
-      }
-    }
+			if (param.type === "query" && param.key && value !== undefined) {
+				queryParams[param.key] = value as string | number | boolean;
+			} else if (param.type === "queryMap" && value !== undefined) {
+				// Handle dynamic query parameters from object
+				const queryObj = value as Record<
+					string,
+					string | number | boolean | undefined
+				>;
+				for (const [key, val] of Object.entries(queryObj)) {
+					if (val !== undefined && val !== null) {
+						queryParams[key] = val;
+					}
+				}
+			} else if (param.type === "path" && param.key && value !== undefined) {
+				url = url.replace(`:${param.key}`, String(value));
+			} else if (param.type === "body") {
+				body = value;
+			} else if (param.type === "header" && param.key && value !== undefined) {
+				headers[param.key] = String(value);
+			}
+		}
 
-    // Build full URL
-    const basePath = collectionMetadata?.basePath || "";
-    const fullPath = `${basePath}${url}`;
-    const fullURL = `${this.config.baseURL}${fullPath}`;
+		// Build full URL
+		const basePath = collectionMetadata?.basePath || "";
+		const fullPath = `${basePath}${url}`;
+		const fullURL = `${this.config.baseURL}${fullPath}`;
 
-    // Build query string
-    const queryString = Object.entries(queryParams)
-      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
-      .join("&");
+		// Build query string
+		const queryString = Object.entries(queryParams)
+			.map(
+				([key, value]) =>
+					`${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`,
+			)
+			.join("&");
 
-    const finalURL = queryString ? `${fullURL}?${queryString}` : fullURL;
+		const finalURL = queryString ? `${fullURL}?${queryString}` : fullURL;
 
-    // Execute request
-    const requestConfig: RequestConfig = {
-      method: methodMetadata.method,
-      url: finalURL,
-      headers,
-      body,
-    };
+		// Execute request
+		const requestConfig: RequestConfig = {
+			method: methodMetadata.method,
+			url: finalURL,
+			headers,
+			body,
+		};
 
-    return this.request<T>(requestConfig);
-  }
+		return this.request<T>(requestConfig);
+	}
 
 	protected async request<T = unknown>(
 		config: RequestConfig,

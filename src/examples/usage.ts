@@ -2,10 +2,10 @@ import { TodoRepository } from "./TodoRepository.ts";
 
 // Example usage
 const todoRepo = new TodoRepository({
-  baseURL: "https://jsonplaceholder.typicode.com",
-  headers: {
-    "Content-Type": "application/json",
-  },
+	baseURL: "https://jsonplaceholder.typicode.com",
+	headers: {
+		"Content-Type": "application/json",
+	},
 });
 
 // Get all todos
@@ -22,14 +22,14 @@ console.log("Paginated todos:", paginatedTodos.data);
 
 // Create new todo
 const newTodo = await todoRepo.createTodo({
-  title: "New Todo",
-  completed: false,
+	title: "New Todo",
+	completed: false,
 });
 console.log("Created todo:", newTodo.data);
 
 // Update todo
 const updatedTodo = await todoRepo.updateTodo(1, {
-  completed: true,
+	completed: true,
 });
 console.log("Updated todo:", updatedTodo.data);
 

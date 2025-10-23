@@ -1,6 +1,6 @@
 import "reflect-metadata";
-import type { ParameterMetadata } from "../types.ts";
 import { METADATA_KEYS } from "../constants.ts";
+import type { ParameterMetadata } from "../types.ts";
 
 /**
  * Decorator for dynamic query parameters from an object.

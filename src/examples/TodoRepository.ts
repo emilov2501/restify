@@ -35,9 +35,9 @@ export class TodoRepository extends Restify {
 	}
 
 	@GET("/:id")
-  getTodoById(@Path("id") _id: number): Promise<{ data: Todo }> {
-    return {} as Promise<{ data: Todo }>;
-  }
+	getTodoById(@Path("id") _id: number): Promise<{ data: Todo }> {
+		return {} as Promise<{ data: Todo }>;
+	}
 
 	@GET("")
 	getList(
@@ -48,20 +48,20 @@ export class TodoRepository extends Restify {
 	}
 
 	@GET("")
-  getFilteredTodos(
-    @QueryMap() _filters: {
-      completed?: boolean;
-      title?: string;
-      priority?: "low" | "medium" | "high";
-    }
-  ): Promise<{ data: Todo[] }> {
-    return {} as Promise<{ data: Todo[] }>;
-  }
+	getFilteredTodos(
+		@QueryMap() _filters: {
+			completed?: boolean;
+			title?: string;
+			priority?: "low" | "medium" | "high";
+		},
+	): Promise<{ data: Todo[] }> {
+		return {} as Promise<{ data: Todo[] }>;
+	}
 
 	@POST("")
-  createTodo(@Body() _todo: CreateTodoDto): Promise<{ data: Todo }> {
-    return {} as Promise<{ data: Todo }>;
-  }
+	createTodo(@Body() _todo: CreateTodoDto): Promise<{ data: Todo }> {
+		return {} as Promise<{ data: Todo }>;
+	}
 
 	@PUT("/:id")
 	updateTodo(
@@ -72,7 +72,7 @@ export class TodoRepository extends Restify {
 	}
 
 	@DELETE("/:id")
-  deleteTodo(@Path("id") _id: number): Promise<{ data: void }> {
-    return {} as Promise<{ data: void }>;
-  }
+	deleteTodo(@Path("id") _id: number): Promise<{ data: void }> {
+		return {} as Promise<{ data: void }>;
+	}
 }
