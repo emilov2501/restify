@@ -5,12 +5,12 @@ import { METADATA_KEYS } from "../constants.ts";
 /**
  * Decorator for dynamic query parameters from an object.
  * Useful for filters, search parameters, etc.
- * 
+ *
  * @example
  * ```ts
  * @GET("/users")
  * getUsers(@QueryMap() filters: { name?: string; age?: number; status?: string }) {}
- * 
+ *
  * // Usage: getUsers({ name: "John", status: "active" })
  * // Result: GET /users?name=John&status=active
  * ```

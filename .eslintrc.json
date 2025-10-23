@@ -20,5 +20,6 @@
         "argsIgnorePattern": "^_"
       }
     ]
-  }
+  },
+  "ignorePatterns": ["**/__tests__/**", "**/*.test.ts", "**/*.spec.ts"]
 }
