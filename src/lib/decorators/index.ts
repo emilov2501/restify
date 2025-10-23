@@ -11,3 +11,4 @@ export { POST } from "./POST.ts";
 export { PUT } from "./PUT.ts";
 export { Query } from "./Query.ts";
 export { QueryMap } from "./QueryMap.ts";
+export { Transform } from "./Transform.ts";

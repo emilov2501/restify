@@ -154,8 +154,20 @@ export class Restify {
 				}
 			}
 
+			// Check if Transform function is defined
+			const transformFn = Reflect.getMetadata(
+				METADATA_KEYS.TRANSFORM,
+				proto,
+				propertyKey,
+			) as ((data: unknown) => unknown) | undefined;
+
+			let transformedData: unknown = response.data;
+			if (transformFn) {
+				transformedData = await transformFn(response.data);
+			}
+
 			return {
-				data: response.data,
+				data: transformedData as T,
 				status: response.status,
 				headers: headersRecord,
 			};
