@@ -1,6 +1,6 @@
 {
 	"name": "ts-restify",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "A TypeScript library for HTTP requests with decorators, inspired by Retrofit",
 	"type": "module",
 	"main": "./dist/restify.cjs.js",
@@ -25,6 +25,15 @@
 		"url": "https://github.com/emilov2501/restify/issues"
 	},
 	"homepage": "https://github.com/emilov2501/restify#readme",
+	"keywords": [
+		"typescript",
+		"http",
+		"rest",
+		"api",
+		"decorators",
+		"axios",
+		"retrofit"
+	],
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc && vite build",
