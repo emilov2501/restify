@@ -1,3 +1,1 @@
-import { runInterceptorExamples } from "./examples/InterceptorExample.ts";
-
-runInterceptorExamples();
+import "./examples/usage.ts";
