@@ -1,22 +1,5 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
-
-### [1.0.3](https://github.com/emilov2501/restify/compare/v1.0.2...v1.0.3) (2025-10-24)
-
-**Tooling:**
-- Migrated from changesets to standard-version for automated versioning
-
-### [1.0.2](https://github.com/emilov2501/restify/compare/v1.0.1...v1.0.2) (2025-10-24)
-
-**Maintenance:**
-- Added MIT license to package.json
-
-### [1.0.1](https://github.com/emilov2501/restify/compare/v1.0.0...v1.0.1) (2025-10-24)
-
-**Maintenance:**
-- Added LICENSE file
-
 ## [1.0.0](https://github.com/emilov2501/restify/releases/tag/v1.0.0) (2025-10-24)
 
 **Initial release with full feature set:**
