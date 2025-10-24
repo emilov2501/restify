@@ -18,5 +18,6 @@ export { PUT } from "./PUT.ts";
 export { Query } from "./Query.ts";
 export { QueryMap } from "./QueryMap.ts";
 export { ResponseType } from "./ResponseType.ts";
+export { Retry } from "./Retry.ts";
 export { Transform } from "./Transform.ts";
 export { WithCredentials } from "./WithCredentials.ts";

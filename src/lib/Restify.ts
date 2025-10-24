@@ -4,6 +4,7 @@ import { consola } from "consola";
 import { METADATA_KEYS } from "./constants.ts";
 import type { AfterResponseInterceptor } from "./decorators/AfterResponse.ts";
 import type { BeforeRequestInterceptor } from "./decorators/BeforeRequest.ts";
+import type { RetryOptions } from "./decorators/Retry.ts";
 import type {
 	MethodMetadata,
 	ParameterMetadata,
@@ -206,106 +207,143 @@ export class Restify {
 				? methodWithCredentials
 				: classWithCredentials;
 
-		try {
-			// Build request config
-			let requestConfig: AxiosRequestConfig = {
-				method: methodMetadata.method,
-				url: finalURL,
-				headers,
-				data: body,
-				responseType: responseType as never,
-				withCredentials,
-			};
+		// Check if Retry is defined
+		const retryConfig = Reflect.getMetadata(
+			METADATA_KEYS.RETRY,
+			proto,
+			propertyKey,
+		) as Required<RetryOptions> | undefined;
 
-			// Check if BeforeRequest interceptor is defined
-			const beforeRequestInterceptor = Reflect.getMetadata(
-				METADATA_KEYS.BEFORE_REQUEST,
-				proto,
-				propertyKey,
-			) as BeforeRequestInterceptor | undefined;
-
-			if (beforeRequestInterceptor) {
-				requestConfig = await beforeRequestInterceptor(requestConfig);
-			}
-
-			// Execute request with axios
-			let response = await this.axiosInstance.request<T>(requestConfig);
-
-			// Check if AfterResponse interceptor is defined
-			const afterResponseInterceptor = Reflect.getMetadata(
-				METADATA_KEYS.AFTER_RESPONSE,
-				proto,
-				propertyKey,
-			) as AfterResponseInterceptor<T> | undefined;
-
-			if (afterResponseInterceptor) {
-				response = await afterResponseInterceptor(response as AxiosResponse<T>);
-			}
-
-			// Log response if logger is enabled
-			if (isLoggerEnabled) {
-				consola.success(`${propertyKey} ✓`, {
-					status: response.status,
-					data: response.data,
-				});
-			}
-
-			const headersRecord: Record<string, string> = {};
-			for (const [key, value] of Object.entries(response.headers)) {
-				if (typeof value === "string") {
-					headersRecord[key] = value;
-				}
-			}
-
-			// Check if Transform function is defined
-			const transformFn = Reflect.getMetadata(
-				METADATA_KEYS.TRANSFORM,
-				proto,
-				propertyKey,
-			) as ((data: unknown) => unknown) | undefined;
-
-			let transformedData: unknown = response.data;
-			if (transformFn) {
-				transformedData = await transformFn(response.data);
-			}
-
-			return {
-				data: transformedData as T,
-				status: response.status,
-				headers: headersRecord,
-			};
-		} catch (error) {
-			// Log error if logger is enabled
-			if (isLoggerEnabled) {
-				consola.error(`${propertyKey} ✗`, {
+		// Execute request with retry logic
+		const executeWithRetry = async (
+			attempt = 0,
+		): Promise<RestifyResponse<T>> => {
+			try {
+				// Build request config
+				let requestConfig: AxiosRequestConfig = {
 					method: methodMetadata.method,
 					url: finalURL,
-					error: error instanceof Error ? error.message : String(error),
-				});
-			}
-
-			// Check if OnError handler is defined
-			const errorHandler = Reflect.getMetadata(
-				METADATA_KEYS.ON_ERROR,
-				proto,
-				propertyKey,
-			) as ((error: unknown) => unknown) | undefined;
-
-			if (errorHandler) {
-				const result = await errorHandler(error);
-				// If handler returns a value, use it as the response
-				if (result !== undefined) {
-					return result as RestifyResponse<T>;
-				}
-				// If handler returns void/undefined, suppress the error
-				return {
-					data: undefined as T,
-					status: 0,
-					headers: {},
+					headers,
+					data: body,
+					responseType: responseType as never,
+					withCredentials,
 				};
-			}
 
-			throw error;
-		}
+				// Check if BeforeRequest interceptor is defined
+				const beforeRequestInterceptor = Reflect.getMetadata(
+					METADATA_KEYS.BEFORE_REQUEST,
+					proto,
+					propertyKey,
+				) as BeforeRequestInterceptor | undefined;
+
+				if (beforeRequestInterceptor) {
+					requestConfig = await beforeRequestInterceptor(requestConfig);
+				}
+
+				// Execute request with axios
+				let response = await this.axiosInstance.request<T>(requestConfig);
+
+				// Check if AfterResponse interceptor is defined
+				const afterResponseInterceptor = Reflect.getMetadata(
+					METADATA_KEYS.AFTER_RESPONSE,
+					proto,
+					propertyKey,
+				) as AfterResponseInterceptor<T> | undefined;
+
+				if (afterResponseInterceptor) {
+					response = await afterResponseInterceptor(
+						response as AxiosResponse<T>,
+					);
+				}
+
+				// Log response if logger is enabled
+				if (isLoggerEnabled) {
+					consola.success(`${propertyKey} ✓`, {
+						status: response.status,
+						data: response.data,
+					});
+				}
+
+				const headersRecord: Record<string, string> = {};
+				for (const [key, value] of Object.entries(response.headers)) {
+					if (typeof value === "string") {
+						headersRecord[key] = value;
+					}
+				}
+
+				// Check if Transform function is defined
+				const transformFn = Reflect.getMetadata(
+					METADATA_KEYS.TRANSFORM,
+					proto,
+					propertyKey,
+				) as ((data: unknown) => unknown) | undefined;
+
+				let transformedData: unknown = response.data;
+				if (transformFn) {
+					transformedData = await transformFn(response.data);
+				}
+
+				return {
+					data: transformedData as T,
+					status: response.status,
+					headers: headersRecord,
+				};
+			} catch (error) {
+				// Log error if logger is enabled
+				if (isLoggerEnabled) {
+					consola.error(`${propertyKey} ✗`, {
+						method: methodMetadata.method,
+						url: finalURL,
+						error: error instanceof Error ? error.message : String(error),
+					});
+				}
+
+				// Check if OnError handler is defined
+				const errorHandler = Reflect.getMetadata(
+					METADATA_KEYS.ON_ERROR,
+					proto,
+					propertyKey,
+				) as ((error: unknown) => unknown) | undefined;
+
+				if (errorHandler) {
+					const result = await errorHandler(error);
+					// If handler returns a value, use it as the response
+					if (result !== undefined) {
+						return result as RestifyResponse<T>;
+					}
+					// If handler returns void/undefined, suppress the error
+					return {
+						data: undefined as T,
+						status: 0,
+						headers: {},
+					};
+				}
+
+				// Retry logic
+				if (retryConfig && attempt < retryConfig.attempts) {
+					const shouldRetry = retryConfig.shouldRetry(error);
+
+					if (shouldRetry) {
+						const delay = Math.min(
+							retryConfig.delay * retryConfig.backoff ** attempt,
+							retryConfig.maxDelay,
+						);
+
+						if (isLoggerEnabled) {
+							consola.warn(
+								`${propertyKey} ⟳ Retry ${attempt + 1}/${retryConfig.attempts} after ${delay}ms`,
+							);
+						}
+
+						await new Promise((resolve) => setTimeout(resolve, delay));
+						return executeWithRetry(attempt + 1);
+					}
+				}
+
+				throw error;
+			}
+		};
+
+		return executeWithRetry();
 	}
 }

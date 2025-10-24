@@ -12,4 +12,5 @@ export const METADATA_KEYS = {
 	WITH_CREDENTIALS: "restify:withCredentials",
 	BEFORE_REQUEST: "restify:beforeRequest",
 	AFTER_RESPONSE: "restify:afterResponse",
+	RETRY: "restify:retry",
 } as const;

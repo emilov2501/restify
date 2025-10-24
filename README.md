@@ -17,6 +17,7 @@ A TypeScript library for HTTP requests with decorators, inspired by Retrofit.
 - ⚠️ **Error handling** - `@OnError` decorator for custom error handling
 - 🏷️ **Deprecation warnings** - `@Deprecated` decorator for API versioning
 - 🔀 **Request/Response interceptors** - `@BeforeRequest` and `@AfterResponse` decorators
+- 🔁 **Automatic retries** - `@Retry` decorator with exponential backoff
 
 ## Installation
 
@@ -126,6 +127,7 @@ const paginated = await todoRepo.getList(1, 10);
 - `@Deprecated(message?)` - Mark method as deprecated with optional message
 - `@BeforeRequest(interceptor)` - Intercept and modify request before sending
 - `@AfterResponse(interceptor)` - Intercept and modify response after receiving
+- `@Retry(options?)` - Automatically retry failed requests with exponential backoff
 
 ## Advanced Features
 
@@ -236,6 +238,52 @@ class ApiRepository extends Restify {
 }
 ```
 
+### Automatic Retries
+
+```typescript
+@Collection("/api")
+class ApiRepository extends Restify {
+  // Simple retry with defaults (3 attempts, 1s delay, 2x backoff)
+  @GET("/unstable")
+  @Retry()
+  getUnstableData(): Promise<RestifyResponse<Data>> {
+    return {} as Promise<RestifyResponse<Data>>;
+  }
+
+  // Custom retry configuration
+  @GET("/flaky")
+  @Retry({
+    attempts: 5,
+    delay: 2000,
+    backoff: 1.5,
+    maxDelay: 10000,
+  })
+  getFlakyData(): Promise<RestifyResponse<Data>> {
+    return {} as Promise<RestifyResponse<Data>>;
+  }
+
+  // Custom retry condition (only retry on 503)
+  @GET("/service")
+  @Retry({
+    attempts: 3,
+    shouldRetry: (error: any) => {
+      return error.response?.status === 503;
+    },
+  })
+  getServiceData(): Promise<RestifyResponse<Data>> {
+    return {} as Promise<RestifyResponse<Data>>;
+  }
+
+  // Combine with Logger to see retry attempts
+  @GET("/external")
+  @Logger()
+  @Retry({ attempts: 3, delay: 1000 })
+  getExternalData(): Promise<RestifyResponse<Data>> {
+    return {} as Promise<RestifyResponse<Data>>;
+  }
+}
+```
+
 ## Configuration
 
 ```typescript
@@ -308,6 +356,7 @@ src/
 |│   │   ├── Deprecated.ts       # @Deprecated
 |│   │   ├── BeforeRequest.ts    # @BeforeRequest
 |│   │   ├── AfterResponse.ts    # @AfterResponse
+|│   │   ├── Retry.ts            # @Retry
 |│   │   ├── __tests__/          # Decorator tests
 |│   │   └── index.ts            # Export all decorators
 │   ├── __tests__/
