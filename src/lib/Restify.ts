@@ -94,36 +94,53 @@ export class Restify {
 			this.constructor,
 		) as { basePath: string } | undefined;
 
-		let url = methodMetadata.path;
-		const queryParams: Record<string, string | number | boolean> = {};
-		const headers: Record<string, string> = {};
-		let body: unknown;
+	let url = methodMetadata.path;
+	const queryParams: Record<string, string | number | boolean> = {};
+	const headers: Record<string, string> = {};
+	const formFields: Record<string, string> = {};
+	let body: unknown;
 
-		// Process parameters
-		for (const param of parameters) {
-			const value = args[param.index];
+	// Check if FormUrlEncoded is enabled
+	const isFormUrlEncoded = Reflect.getMetadata(
+		METADATA_KEYS.FORM_URL_ENCODED,
+		proto,
+		propertyKey,
+	) as boolean | undefined;
 
-			if (param.type === "query" && param.key && value !== undefined) {
-				queryParams[param.key] = value as string | number | boolean;
-			} else if (param.type === "queryMap" && value !== undefined) {
-				// Handle dynamic query parameters from object
-				const queryObj = value as Record<
-					string,
-					string | number | boolean | undefined
-				>;
-				for (const [key, val] of Object.entries(queryObj)) {
-					if (val !== undefined && val !== null) {
-						queryParams[key] = val;
-					}
+	// Process parameters
+	for (const param of parameters) {
+		const value = args[param.index];
+
+		if (param.type === "query" && param.key && value !== undefined) {
+			queryParams[param.key] = value as string | number | boolean;
+		} else if (param.type === "queryMap" && value !== undefined) {
+			// Handle dynamic query parameters from object
+			const queryObj = value as Record<
+				string,
+				string | number | boolean | undefined
+			>;
+			for (const [key, val] of Object.entries(queryObj)) {
+				if (val !== undefined && val !== null) {
+					queryParams[key] = val;
 				}
-			} else if (param.type === "path" && param.key && value !== undefined) {
-				url = url.replace(`:${param.key}`, String(value));
-			} else if (param.type === "body") {
-				body = value;
-			} else if (param.type === "header" && param.key && value !== undefined) {
-				headers[param.key] = String(value);
 			}
+		} else if (param.type === "path" && param.key && value !== undefined) {
+			url = url.replace(`:${param.key}`, String(value));
+		} else if (param.type === "body") {
+			body = value;
+		} else if (param.type === "header" && param.key && value !== undefined) {
+			headers[param.key] = String(value);
+		} else if (param.type === "field" && param.key && value !== undefined) {
+			// Collect form fields for x-www-form-urlencoded
+			formFields[param.key] = String(value);
 		}
+	}
+
+	// If FormUrlEncoded, convert form fields to URL-encoded string
+	if (isFormUrlEncoded && Object.keys(formFields).length > 0) {
+		body = new URLSearchParams(formFields).toString();
+		headers["Content-Type"] = "application/x-www-form-urlencoded";
+	}
 
 		// Check if BaseUrl is defined
 		const baseUrlMetadata = Reflect.getMetadata(

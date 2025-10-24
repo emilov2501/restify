@@ -8,4 +8,5 @@ export const METADATA_KEYS = {
 	DEPRECATED: "restify:deprecated",
 	RESPONSE_TYPE: "restify:responseType",
 	BASE_URL: "restify:baseUrl",
+	FORM_URL_ENCODED: "restify:formUrlEncoded",
 } as const;

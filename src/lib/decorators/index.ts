@@ -3,6 +3,8 @@ export { Body } from "./Body.ts";
 export { Collection } from "./Collection.ts";
 export { DELETE } from "./DELETE.ts";
 export { Deprecated } from "./Deprecated.ts";
+export { Field } from "./Field.ts";
+export { FormUrlEncoded } from "./FormUrlEncoded.ts";
 export { GET } from "./GET.ts";
 export { Header } from "./Header.ts";
 export { Logger } from "./Logger.ts";
