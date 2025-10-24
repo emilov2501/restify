@@ -83,13 +83,17 @@ class TodoRepository extends Restify {
   }
 }
 
-// Usage
-const todoRepo = new TodoRepository({
+// Usage - pass axios instance
+import axios from "axios";
+
+const axiosInstance = axios.create({
   baseURL: "https://jsonplaceholder.typicode.com",
   headers: {
     "Content-Type": "application/json",
   },
 });
+
+const todoRepo = new TodoRepository(axiosInstance);
 
 const todos = await todoRepo.getTodos();
 const todo = await todoRepo.getTodoById(1);
@@ -286,37 +290,21 @@ class ApiRepository extends Restify {
 
 ## Configuration
 
-```typescript
-interface RestifyConfig {
-  baseURL: string;
-  headers?: Record<string, string>;
-  timeout?: number;
-}
-```
+The library uses axios as its HTTP client. You must pass an axios instance to the constructor:
 
-### HTTP Client
-
-The library uses axios as its HTTP client.
-
-**Method 1: Pass axios instance (recommended)**
 ```typescript
 import axios from "axios";
 
 const axiosInstance = axios.create({
   baseURL: "https://api.example.com",
   timeout: 5000,
-  headers: { Authorization: "Bearer token" },
+  headers: { 
+    "Content-Type": "application/json",
+    Authorization: "Bearer token" 
+  },
 });
 
-// Just pass the instance
 const repo = new TodoRepository(axiosInstance);
-```
-
-**Method 2: Use RestifyConfig**
-```typescript
-const repo = new TodoRepository({
-  baseURL: "https://api.example.com",
-});
 ```
 
 **Axios Features:**
@@ -324,6 +312,7 @@ const repo = new TodoRepository({
 - Request cancellation
 - Upload progress
 - Request/response interceptors
+- Full axios configuration support
 
 ## Project Structure
 
