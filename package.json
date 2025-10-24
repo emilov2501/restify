@@ -1,46 +1,61 @@
 {
   "name": "restify",
-  "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "description": "A TypeScript library for HTTP requests with decorators, inspired by Retrofit",
   "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage",
-    "lint": "biome check src",
-    "lint:fix": "biome check --write src",
-    "format": "biome format --write src",
-    "typecheck": "tsc --noEmit",
-    "prepare": "husky install"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.2.7",
-    "@commitlint/cli": "^18.0.0",
-    "@commitlint/config-conventional": "^18.0.0",
-    "@types/node": "^20.0.0",
-    "@vitest/ui": "^1.0.0",
-    "axios": "^1.12.2",
-    "husky": "^8.0.0",
-    "lint-staged": "^15.0.0",
-    "reflect-metadata": "^0.2.2",
-    "typescript": "~5.9.3",
-    "vite": "^7.1.7",
-    "vitest": "^1.0.0"
-  },
-  "dependencies": {
-    "consola": "^3.4.2"
-  },
-  "peerDependencies": {
-    "axios": "^1.0.0",
-    "reflect-metadata": "^0.2.0"
-  },
-  "lint-staged": {
-    "*.ts": [
-      "biome check --write",
-      "tsc --noEmit"
-    ]
-  }
+	"main": "./dist/restify.cjs.js",
+	"module": "./dist/restify.es.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"import": "./dist/restify.es.js",
+			"require": "./dist/restify.cjs.js",
+			"types": "./dist/index.d.ts"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"author": "Eldiiar Temir",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc && vite build",
+		"preview": "vite preview",
+		"test": "vitest",
+		"test:ui": "vitest --ui",
+		"test:coverage": "vitest --coverage",
+		"lint": "biome check src",
+		"lint:fix": "biome check --write src",
+		"format": "biome format --write src",
+		"typecheck": "tsc --noEmit",
+		"prepare": "husky install"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.2.7",
+		"@commitlint/cli": "^18.0.0",
+		"@commitlint/config-conventional": "^18.0.0",
+		"@types/node": "^20.0.0",
+		"@vitest/ui": "^1.0.0",
+		"axios": "^1.12.2",
+		"husky": "^8.0.0",
+		"lint-staged": "^15.0.0",
+		"reflect-metadata": "^0.2.2",
+		"typescript": "~5.9.3",
+		"vite": "^7.1.7",
+		"vite-plugin-dts": "^4.5.4",
+		"vitest": "^1.0.0"
+	},
+	"dependencies": {
+		"consola": "^3.4.2"
+	},
+	"peerDependencies": {
+		"axios": "^1.0.0",
+		"reflect-metadata": "^0.2.0"
+	},
+	"lint-staged": {
+		"*.ts": [
+			"biome check --write",
+			"tsc --noEmit"
+		]
+	}
 }
