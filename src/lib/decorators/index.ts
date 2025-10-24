@@ -1,3 +1,4 @@
+export { BaseUrl } from "./BaseUrl.ts";
 export { Body } from "./Body.ts";
 export { Collection } from "./Collection.ts";
 export { DELETE } from "./DELETE.ts";

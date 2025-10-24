@@ -7,4 +7,5 @@ export const METADATA_KEYS = {
 	TRANSFORM: "restify:transform",
 	DEPRECATED: "restify:deprecated",
 	RESPONSE_TYPE: "restify:responseType",
+	BASE_URL: "restify:baseUrl",
 } as const;

@@ -125,6 +125,12 @@ export class Restify {
 			}
 		}
 
+		// Check if BaseUrl is defined
+		const baseUrlMetadata = Reflect.getMetadata(
+			METADATA_KEYS.BASE_URL,
+			this.constructor,
+		) as { baseURL: string } | undefined;
+
 		// Build full URL
 		const basePath = collectionMetadata?.basePath || "";
 		const fullPath = `${basePath}${url}`;
@@ -137,7 +143,14 @@ export class Restify {
 			)
 			.join("&");
 
-		const finalURL = queryString ? `${fullPath}?${queryString}` : fullPath;
+		// Combine baseURL from decorator (if exists) with path
+		let finalURL = queryString ? `${fullPath}?${queryString}` : fullPath;
+		if (baseUrlMetadata?.baseURL) {
+			// Remove leading slash from fullPath if baseURL is present
+			const path = fullPath.startsWith("/") ? fullPath : `/${fullPath}`;
+			const pathWithQuery = queryString ? `${path}?${queryString}` : path;
+			finalURL = `${baseUrlMetadata.baseURL}${pathWithQuery}`;
+		}
 
 		// Log request if logger is enabled
 		if (isLoggerEnabled) {
