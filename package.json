@@ -1,6 +1,6 @@
 {
 	"name": "ts-restify",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "A TypeScript library for HTTP requests with decorators, inspired by Retrofit",
 	"type": "module",
 	"main": "./dist/restify.cjs.js",
@@ -46,14 +46,15 @@
 		"lint:fix": "biome check --write src",
 		"format": "biome format --write src",
 		"typecheck": "tsc --noEmit",
-		"changeset": "changeset",
-		"version": "changeset version",
-		"release": "changeset publish",
+		"release:auto": "standard-version",
+		"release:patch": "standard-version --release-as patch",
+		"release:minor": "standard-version --release-as minor",
+		"release:major": "standard-version --release-as major",
+		"release:first": "standard-version --first-release",
 		"prepare": "husky install"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.2.7",
-		"@changesets/cli": "^2.29.7",
 		"@commitlint/cli": "^18.0.0",
 		"@commitlint/config-conventional": "^18.0.0",
 		"@types/node": "^20.0.0",
@@ -68,7 +69,8 @@
 		"vitest": "^1.0.0"
 	},
 	"dependencies": {
-		"consola": "^3.4.2"
+		"consola": "^3.4.2",
+		"standard-version": "^9.5.0"
 	},
 	"peerDependencies": {
 		"axios": "^1.0.0",
