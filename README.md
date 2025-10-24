@@ -309,8 +309,6 @@ const repo = new TodoRepository(axiosInstance);
 
 **Axios Features:**
 - Automatic JSON transformation
-- Request cancellation
-- Upload progress
 - Request/response interceptors
 - Full axios configuration support
 
