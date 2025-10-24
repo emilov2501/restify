@@ -17,6 +17,14 @@
 		"dist"
 	],
 	"author": "Eldiiar Temir",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/emilov2501/restify.git"
+	},
+	"bugs": {
+		"url": "https://github.com/emilov2501/restify/issues"
+	},
+	"homepage": "https://github.com/emilov2501/restify#readme",
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc && vite build",
