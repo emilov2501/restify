@@ -1,10 +1,8 @@
 import {
-	BaseUrl,
 	Body,
 	Collection,
 	DELETE,
 	GET,
-	Header,
 	Logger,
 	Path,
 	POST,

@@ -78,7 +78,7 @@ describe("Transform decorator", () => {
 	});
 
 	it("should handle array transformations", async () => {
-		const mockRequest = vi.spyOn(axiosInstance, "request").mockResolvedValue({
+		const _mockRequest = vi.spyOn(axiosInstance, "request").mockResolvedValue({
 			data: [
 				{ id: 1, name: "Todo 1", completed: false },
 				{ id: 2, name: "Todo 2", completed: true },
@@ -110,7 +110,7 @@ describe("Transform decorator", () => {
 	});
 
 	it("should add computed fields", async () => {
-		const mockRequest = vi.spyOn(axiosInstance, "request").mockResolvedValue({
+		const _mockRequest = vi.spyOn(axiosInstance, "request").mockResolvedValue({
 			data: {
 				firstName: "John",
 				lastName: "Doe",
@@ -148,7 +148,7 @@ describe("Transform decorator", () => {
 	});
 
 	it("should preserve status and headers", async () => {
-		const mockRequest = vi.spyOn(axiosInstance, "request").mockResolvedValue({
+		const _mockRequest = vi.spyOn(axiosInstance, "request").mockResolvedValue({
 			data: { items: [1, 2, 3] },
 			status: 201,
 			headers: { "x-custom-header": "value" },
@@ -194,7 +194,7 @@ describe("Transform decorator", () => {
 	});
 
 	it("should chain multiple transformations conceptually", async () => {
-		const mockRequest = vi.spyOn(axiosInstance, "request").mockResolvedValue({
+		const _mockRequest = vi.spyOn(axiosInstance, "request").mockResolvedValue({
 			data: {
 				results: {
 					items: [1, 2, 3, 4, 5],
@@ -207,9 +207,8 @@ describe("Transform decorator", () => {
 		@Collection("/api")
 		class ApiRepository extends Restify {
 			@GET("/data")
-			@Transform(
-				(response: { results: { items: number[] } }) =>
-					response.results.items.map((n) => n * 2).filter((n) => n > 4),
+			@Transform((response: { results: { items: number[] } }) =>
+				response.results.items.map((n) => n * 2).filter((n) => n > 4),
 			)
 			getData(): Promise<unknown> {
 				return Promise.resolve();

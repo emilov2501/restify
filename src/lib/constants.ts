@@ -10,4 +10,6 @@ export const METADATA_KEYS = {
 	BASE_URL: "restify:baseUrl",
 	FORM_URL_ENCODED: "restify:formUrlEncoded",
 	WITH_CREDENTIALS: "restify:withCredentials",
+	BEFORE_REQUEST: "restify:beforeRequest",
+	AFTER_RESPONSE: "restify:afterResponse",
 } as const;

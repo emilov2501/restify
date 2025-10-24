@@ -5,8 +5,8 @@ import { Body } from "../Body.ts";
 import { Collection } from "../Collection.ts";
 import { GET } from "../GET.ts";
 import { OnError } from "../OnError.ts";
-import { POST } from "../POST.ts";
 import { Path } from "../Path.ts";
+import { POST } from "../POST.ts";
 
 describe("OnError decorator", () => {
 	const axiosInstance = axios.create({
@@ -97,9 +97,9 @@ describe("OnError decorator", () => {
 
 		const repo = new TodoRepository(axiosInstance);
 
-		await expect(
-			repo.createTodo({ title: "New Todo" }),
-		).rejects.toThrow("Network error");
+		await expect(repo.createTodo({ title: "New Todo" })).rejects.toThrow(
+			"Network error",
+		);
 
 		expect(mockRequest).toHaveBeenCalled();
 	});

@@ -16,7 +16,6 @@ export interface CollectionMetadata {
 	basePath: string;
 }
 
-
 export interface RestifyResponse<T = unknown> {
 	data: T;
 	status: number;

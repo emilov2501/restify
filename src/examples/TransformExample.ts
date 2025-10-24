@@ -1,8 +1,8 @@
 import axios from "axios";
-import { Restify } from "../lib/Restify.ts";
 import { Collection } from "../lib/decorators/Collection.ts";
 import { GET } from "../lib/decorators/GET.ts";
 import { Transform } from "../lib/decorators/Transform.ts";
+import { Restify } from "../lib/Restify.ts";
 import type { RestifyResponse } from "../lib/types.ts";
 
 interface Todo {

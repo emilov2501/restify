@@ -16,7 +16,9 @@ describe("Deprecated decorator", () => {
 	});
 
 	it("should log warning when deprecated method is called", async () => {
-		const consolaWarnSpy = vi.spyOn(consola, "warn").mockImplementation(() => {});
+		const consolaWarnSpy = vi
+			.spyOn(consola, "warn")
+			.mockImplementation(() => {});
 		const mockRequest = vi.spyOn(axiosInstance, "request").mockResolvedValue({
 			data: { value: 42 },
 			status: 200,
@@ -35,14 +37,14 @@ describe("Deprecated decorator", () => {
 		const repo = new ApiRepository(axiosInstance);
 		await repo.getOldData();
 
-		expect(consolaWarnSpy).toHaveBeenCalledWith(
-			"⚠️  Use getNewData() instead",
-		);
+		expect(consolaWarnSpy).toHaveBeenCalledWith("⚠️  Use getNewData() instead");
 		expect(mockRequest).toHaveBeenCalled();
 	});
 
 	it("should use default message when no message provided", async () => {
-		const consolaWarnSpy = vi.spyOn(consola, "warn").mockImplementation(() => {});
+		const consolaWarnSpy = vi
+			.spyOn(consola, "warn")
+			.mockImplementation(() => {});
 		vi.spyOn(axiosInstance, "request").mockResolvedValue({
 			data: { value: 42 },
 			status: 200,
@@ -117,7 +119,9 @@ describe("Deprecated decorator", () => {
 	});
 
 	it("should work without Deprecated decorator", async () => {
-		const consolaWarnSpy = vi.spyOn(consola, "warn").mockImplementation(() => {});
+		const consolaWarnSpy = vi
+			.spyOn(consola, "warn")
+			.mockImplementation(() => {});
 		vi.spyOn(axiosInstance, "request").mockResolvedValue({
 			data: { value: 42 },
 			status: 200,

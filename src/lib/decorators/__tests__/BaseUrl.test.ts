@@ -2,11 +2,11 @@ import axios from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Restify } from "../../Restify.ts";
 import { BaseUrl } from "../BaseUrl.ts";
+import { Body } from "../Body.ts";
 import { Collection } from "../Collection.ts";
 import { GET } from "../GET.ts";
-import { POST } from "../POST.ts";
-import { Body } from "../Body.ts";
 import { Path } from "../Path.ts";
+import { POST } from "../POST.ts";
 
 describe("BaseUrl decorator", () => {
 	const axiosInstance = axios.create();

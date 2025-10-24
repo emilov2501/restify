@@ -47,6 +47,11 @@ export function OnError<T = unknown>(
 	handler: ErrorHandler<T>,
 ): MethodDecorator {
 	return (target: object, propertyKey: string | symbol): void => {
-		Reflect.defineMetadata(METADATA_KEYS.ON_ERROR, handler, target, propertyKey);
+		Reflect.defineMetadata(
+			METADATA_KEYS.ON_ERROR,
+			handler,
+			target,
+			propertyKey,
+		);
 	};
 }

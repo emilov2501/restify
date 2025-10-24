@@ -41,9 +41,7 @@ import { METADATA_KEYS } from "../constants.ts";
  * }
  * ```
  */
-export function ResponseType(
-	type: AxiosResponseType,
-): MethodDecorator {
+export function ResponseType(type: AxiosResponseType): MethodDecorator {
 	return (target: object, propertyKey: string | symbol): void => {
 		Reflect.defineMetadata(
 			METADATA_KEYS.RESPONSE_TYPE,

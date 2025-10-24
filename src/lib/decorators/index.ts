@@ -1,4 +1,6 @@
+export { AfterResponse } from "./AfterResponse.ts";
 export { BaseUrl } from "./BaseUrl.ts";
+export { BeforeRequest } from "./BeforeRequest.ts";
 export { Body } from "./Body.ts";
 export { Collection } from "./Collection.ts";
 export { DELETE } from "./DELETE.ts";

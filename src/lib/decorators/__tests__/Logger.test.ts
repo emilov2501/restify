@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import "reflect-metadata";
 import { consola } from "consola";
+import { Restify } from "../../Restify.ts";
 import { Collection } from "../Collection.ts";
 import { Body, GET, Logger, POST } from "../index.ts";
-import { Restify } from "../../Restify.ts";
 
 describe("Logger decorator", () => {
 	let consolaInfoSpy: ReturnType<typeof vi.spyOn>;
@@ -13,7 +13,9 @@ describe("Logger decorator", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		consolaInfoSpy = vi.spyOn(consola, "info").mockImplementation(() => {});
-		consolaSuccessSpy = vi.spyOn(consola, "success").mockImplementation(() => {});
+		consolaSuccessSpy = vi
+			.spyOn(consola, "success")
+			.mockImplementation(() => {});
 		consolaErrorSpy = vi.spyOn(consola, "error").mockImplementation(() => {});
 	});
 

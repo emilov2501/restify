@@ -1,7 +1,9 @@
 import "reflect-metadata";
-import type { AxiosInstance } from "axios";
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import { consola } from "consola";
 import { METADATA_KEYS } from "./constants.ts";
+import type { AfterResponseInterceptor } from "./decorators/AfterResponse.ts";
+import type { BeforeRequestInterceptor } from "./decorators/BeforeRequest.ts";
 import type {
 	MethodMetadata,
 	ParameterMetadata,
@@ -94,53 +96,53 @@ export class Restify {
 			this.constructor,
 		) as { basePath: string } | undefined;
 
-	let url = methodMetadata.path;
-	const queryParams: Record<string, string | number | boolean> = {};
-	const headers: Record<string, string> = {};
-	const formFields: Record<string, string> = {};
-	let body: unknown;
+		let url = methodMetadata.path;
+		const queryParams: Record<string, string | number | boolean> = {};
+		const headers: Record<string, string> = {};
+		const formFields: Record<string, string> = {};
+		let body: unknown;
 
-	// Check if FormUrlEncoded is enabled
-	const isFormUrlEncoded = Reflect.getMetadata(
-		METADATA_KEYS.FORM_URL_ENCODED,
-		proto,
-		propertyKey,
-	) as boolean | undefined;
+		// Check if FormUrlEncoded is enabled
+		const isFormUrlEncoded = Reflect.getMetadata(
+			METADATA_KEYS.FORM_URL_ENCODED,
+			proto,
+			propertyKey,
+		) as boolean | undefined;
 
-	// Process parameters
-	for (const param of parameters) {
-		const value = args[param.index];
+		// Process parameters
+		for (const param of parameters) {
+			const value = args[param.index];
 
-		if (param.type === "query" && param.key && value !== undefined) {
-			queryParams[param.key] = value as string | number | boolean;
-		} else if (param.type === "queryMap" && value !== undefined) {
-			// Handle dynamic query parameters from object
-			const queryObj = value as Record<
-				string,
-				string | number | boolean | undefined
-			>;
-			for (const [key, val] of Object.entries(queryObj)) {
-				if (val !== undefined && val !== null) {
-					queryParams[key] = val;
+			if (param.type === "query" && param.key && value !== undefined) {
+				queryParams[param.key] = value as string | number | boolean;
+			} else if (param.type === "queryMap" && value !== undefined) {
+				// Handle dynamic query parameters from object
+				const queryObj = value as Record<
+					string,
+					string | number | boolean | undefined
+				>;
+				for (const [key, val] of Object.entries(queryObj)) {
+					if (val !== undefined && val !== null) {
+						queryParams[key] = val;
+					}
 				}
+			} else if (param.type === "path" && param.key && value !== undefined) {
+				url = url.replace(`:${param.key}`, String(value));
+			} else if (param.type === "body") {
+				body = value;
+			} else if (param.type === "header" && param.key && value !== undefined) {
+				headers[param.key] = String(value);
+			} else if (param.type === "field" && param.key && value !== undefined) {
+				// Collect form fields for x-www-form-urlencoded
+				formFields[param.key] = String(value);
 			}
-		} else if (param.type === "path" && param.key && value !== undefined) {
-			url = url.replace(`:${param.key}`, String(value));
-		} else if (param.type === "body") {
-			body = value;
-		} else if (param.type === "header" && param.key && value !== undefined) {
-			headers[param.key] = String(value);
-		} else if (param.type === "field" && param.key && value !== undefined) {
-			// Collect form fields for x-www-form-urlencoded
-			formFields[param.key] = String(value);
 		}
-	}
 
-	// If FormUrlEncoded, convert form fields to URL-encoded string
-	if (isFormUrlEncoded && Object.keys(formFields).length > 0) {
-		body = new URLSearchParams(formFields).toString();
-		headers["Content-Type"] = "application/x-www-form-urlencoded";
-	}
+		// If FormUrlEncoded, convert form fields to URL-encoded string
+		if (isFormUrlEncoded && Object.keys(formFields).length > 0) {
+			body = new URLSearchParams(formFields).toString();
+			headers["Content-Type"] = "application/x-www-form-urlencoded";
+		}
 
 		// Check if BaseUrl is defined
 		const baseUrlMetadata = Reflect.getMetadata(
@@ -179,41 +181,66 @@ export class Restify {
 			});
 		}
 
-	// Check if ResponseType is defined
-	const responseType = Reflect.getMetadata(
-		METADATA_KEYS.RESPONSE_TYPE,
-		proto,
-		propertyKey,
-	) as string | undefined;
+		// Check if ResponseType is defined
+		const responseType = Reflect.getMetadata(
+			METADATA_KEYS.RESPONSE_TYPE,
+			proto,
+			propertyKey,
+		) as string | undefined;
 
-	// Check if WithCredentials is defined (method overrides class)
-	const methodWithCredentials = Reflect.getMetadata(
-		METADATA_KEYS.WITH_CREDENTIALS,
-		proto,
-		propertyKey,
-	) as boolean | undefined;
+		// Check if WithCredentials is defined (method overrides class)
+		const methodWithCredentials = Reflect.getMetadata(
+			METADATA_KEYS.WITH_CREDENTIALS,
+			proto,
+			propertyKey,
+		) as boolean | undefined;
 
-	const classWithCredentials = Reflect.getMetadata(
-		METADATA_KEYS.WITH_CREDENTIALS,
-		this.constructor,
-	) as boolean | undefined;
+		const classWithCredentials = Reflect.getMetadata(
+			METADATA_KEYS.WITH_CREDENTIALS,
+			this.constructor,
+		) as boolean | undefined;
 
-	// Method decorator takes precedence over class decorator
-	const withCredentials =
-		methodWithCredentials !== undefined
-			? methodWithCredentials
-			: classWithCredentials;
+		// Method decorator takes precedence over class decorator
+		const withCredentials =
+			methodWithCredentials !== undefined
+				? methodWithCredentials
+				: classWithCredentials;
 
-	try {
-			// Execute request with axios
-			const response = await this.axiosInstance.request<T>({
+		try {
+			// Build request config
+			let requestConfig: AxiosRequestConfig = {
 				method: methodMetadata.method,
 				url: finalURL,
 				headers,
 				data: body,
 				responseType: responseType as never,
 				withCredentials,
-			});
+			};
+
+			// Check if BeforeRequest interceptor is defined
+			const beforeRequestInterceptor = Reflect.getMetadata(
+				METADATA_KEYS.BEFORE_REQUEST,
+				proto,
+				propertyKey,
+			) as BeforeRequestInterceptor | undefined;
+
+			if (beforeRequestInterceptor) {
+				requestConfig = await beforeRequestInterceptor(requestConfig);
+			}
+
+			// Execute request with axios
+			let response = await this.axiosInstance.request<T>(requestConfig);
+
+			// Check if AfterResponse interceptor is defined
+			const afterResponseInterceptor = Reflect.getMetadata(
+				METADATA_KEYS.AFTER_RESPONSE,
+				proto,
+				propertyKey,
+			) as AfterResponseInterceptor<T> | undefined;
+
+			if (afterResponseInterceptor) {
+				response = await afterResponseInterceptor(response as AxiosResponse<T>);
+			}
 
 			// Log response if logger is enabled
 			if (isLoggerEnabled) {
@@ -253,8 +280,7 @@ export class Restify {
 				consola.error(`${propertyKey} ✗`, {
 					method: methodMetadata.method,
 					url: finalURL,
-					error:
-						error instanceof Error ? error.message : String(error),
+					error: error instanceof Error ? error.message : String(error),
 				});
 			}
 

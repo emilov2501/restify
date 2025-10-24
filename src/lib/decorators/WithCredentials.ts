@@ -58,11 +58,10 @@ import { METADATA_KEYS } from "../constants.ts";
  * - `Access-Control-Allow-Credentials: true`
  * - `Access-Control-Allow-Origin` must be a specific origin, not `*`
  */
-export function WithCredentials(enabled = true): ClassDecorator & MethodDecorator {
-	return (
-		target: object,
-		propertyKey?: string | symbol,
-	): void => {
+export function WithCredentials(
+	enabled = true,
+): ClassDecorator & MethodDecorator {
+	return (target: object, propertyKey?: string | symbol): void => {
 		if (propertyKey) {
 			// Method decorator
 			Reflect.defineMetadata(

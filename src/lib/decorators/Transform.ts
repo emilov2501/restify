@@ -9,7 +9,6 @@ export type TransformFn<TInput = unknown, TOutput = unknown> = (
 	data: TInput,
 ) => TOutput | Promise<TOutput>;
 
-
 /**
  * Method decorator that transforms the response data before returning it.
  *
