@@ -16,12 +16,22 @@ A TypeScript library for HTTP requests with decorators, inspired by Retrofit.
 - 🪵 **Built-in logging** - `@Logger` decorator for debugging
 - ⚠️ **Error handling** - `@OnError` decorator for custom error handling
 - 🏷️ **Deprecation warnings** - `@Deprecated` decorator for API versioning
+- 🔀 **Request/Response interceptors** - `@BeforeRequest` and `@AfterResponse` decorators
 
 ## Installation
 
 ```bash
-npm install axios reflect-metadata
+npm install restify axios reflect-metadata
 ```
+
+### Peer Dependencies
+
+This library requires the following peer dependencies:
+
+- `axios` ^1.0.0 - HTTP client
+- `reflect-metadata` ^0.2.0 - Metadata reflection API
+
+Make sure to install them in your project.
 
 ## Usage
 
@@ -114,6 +124,8 @@ const paginated = await todoRepo.getList(1, 10);
 - `@Logger()` - Log request and response details
 - `@OnError(handler)` - Custom error handler for the method
 - `@Deprecated(message?)` - Mark method as deprecated with optional message
+- `@BeforeRequest(interceptor)` - Intercept and modify request before sending
+- `@AfterResponse(interceptor)` - Intercept and modify response after receiving
 
 ## Advanced Features
 
@@ -175,6 +187,51 @@ class LegacyApiRepository extends Restify {
   @Deprecated("Use ApiV2Repository.newEndpoint() instead")
   oldMethod(): Promise<Data> {
     return {} as Promise<Data>;
+  }
+}
+```
+
+### Request/Response Interceptors
+
+```typescript
+@Collection("/api")
+class ApiRepository extends Restify {
+  // Add custom headers before request
+  @GET("/data")
+  @BeforeRequest((config) => {
+    config.headers = {
+      ...config.headers,
+      "X-Request-ID": crypto.randomUUID(),
+      "X-Timestamp": Date.now().toString(),
+    };
+    return config;
+  })
+  getData(): Promise<RestifyResponse<Data>> {
+    return {} as Promise<RestifyResponse<Data>>;
+  }
+
+  // Transform response after receiving
+  @GET("/users")
+  @AfterResponse((response) => {
+    console.log("Response received:", response.status);
+    return response;
+  })
+  getUsers(): Promise<RestifyResponse<User[]>> {
+    return {} as Promise<RestifyResponse<User[]>>;
+  }
+
+  // Dynamic authentication token
+  @POST("/secure")
+  @BeforeRequest(async (config) => {
+    const token = await getAuthToken();
+    config.headers = {
+      ...config.headers,
+      Authorization: `Bearer ${token}`,
+    };
+    return config;
+  })
+  createSecure(@Body() data: SecureData): Promise<RestifyResponse<Result>> {
+    return {} as Promise<RestifyResponse<Result>>;
   }
 }
 ```
@@ -246,11 +303,13 @@ src/
 │   │   ├── ResponseType.ts     # @ResponseType
 │   │   ├── FormUrlEncoded.ts   # @FormUrlEncoded
 │   │   ├── WithCredentials.ts  # @WithCredentials
-│   │   ├── Logger.ts           # @Logger
-│   │   ├── OnError.ts          # @OnError
-│   │   ├── Deprecated.ts       # @Deprecated
-│   │   ├── __tests__/          # Decorator tests
-│   │   └── index.ts            # Export all decorators
+|│   │   ├── Logger.ts           # @Logger
+|│   │   ├── OnError.ts          # @OnError
+|│   │   ├── Deprecated.ts       # @Deprecated
+|│   │   ├── BeforeRequest.ts    # @BeforeRequest
+|│   │   ├── AfterResponse.ts    # @AfterResponse
+|│   │   ├── __tests__/          # Decorator tests
+|│   │   └── index.ts            # Export all decorators
 │   ├── __tests__/
 │   │   └── Restify.test.ts     # Core tests
 │   └── index.ts                # Main export
