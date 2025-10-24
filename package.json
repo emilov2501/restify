@@ -1,6 +1,6 @@
 {
   "name": "ts-restify",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A TypeScript library for HTTP requests with decorators, inspired by Retrofit",
   "type": "module",
   "main": "./dist/restify.cjs.js",
@@ -17,22 +17,22 @@
     "dist"
   ],
   "author": "Eldiiar Temir",
-	"scripts": {
-		"dev": "vite",
-		"build": "tsc && vite build",
-		"preview": "vite preview",
-		"test": "vitest",
-		"test:ui": "vitest --ui",
-		"test:coverage": "vitest --coverage",
-		"lint": "biome check src",
-		"lint:fix": "biome check --write src",
-		"format": "biome format --write src",
-		"typecheck": "tsc --noEmit",
-		"changeset": "changeset",
-		"version": "changeset version",
-		"release": "changeset publish",
-		"prepare": "husky install"
-	},
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "lint": "biome check src",
+    "lint:fix": "biome check --write src",
+    "format": "biome format --write src",
+    "typecheck": "tsc --noEmit",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "changeset publish",
+    "prepare": "husky install"
+  },
   "devDependencies": {
     "@biomejs/biome": "^2.2.7",
     "@changesets/cli": "^2.29.7",
