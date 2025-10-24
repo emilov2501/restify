@@ -149,6 +149,13 @@ export class Restify {
 			});
 		}
 
+		// Check if ResponseType is defined
+		const responseType = Reflect.getMetadata(
+			METADATA_KEYS.RESPONSE_TYPE,
+			proto,
+			propertyKey,
+		) as string | undefined;
+
 		try {
 			// Execute request with axios
 			const response = await this.axiosInstance.request<T>({
@@ -156,6 +163,7 @@ export class Restify {
 				url: finalURL,
 				headers,
 				data: body,
+				responseType: responseType as never,
 			});
 
 			// Log response if logger is enabled
