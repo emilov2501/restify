@@ -179,14 +179,32 @@ export class Restify {
 			});
 		}
 
-		// Check if ResponseType is defined
-		const responseType = Reflect.getMetadata(
-			METADATA_KEYS.RESPONSE_TYPE,
-			proto,
-			propertyKey,
-		) as string | undefined;
+	// Check if ResponseType is defined
+	const responseType = Reflect.getMetadata(
+		METADATA_KEYS.RESPONSE_TYPE,
+		proto,
+		propertyKey,
+	) as string | undefined;
 
-		try {
+	// Check if WithCredentials is defined (method overrides class)
+	const methodWithCredentials = Reflect.getMetadata(
+		METADATA_KEYS.WITH_CREDENTIALS,
+		proto,
+		propertyKey,
+	) as boolean | undefined;
+
+	const classWithCredentials = Reflect.getMetadata(
+		METADATA_KEYS.WITH_CREDENTIALS,
+		this.constructor,
+	) as boolean | undefined;
+
+	// Method decorator takes precedence over class decorator
+	const withCredentials =
+		methodWithCredentials !== undefined
+			? methodWithCredentials
+			: classWithCredentials;
+
+	try {
 			// Execute request with axios
 			const response = await this.axiosInstance.request<T>({
 				method: methodMetadata.method,
@@ -194,6 +212,7 @@ export class Restify {
 				headers,
 				data: body,
 				responseType: responseType as never,
+				withCredentials,
 			});
 
 			// Log response if logger is enabled

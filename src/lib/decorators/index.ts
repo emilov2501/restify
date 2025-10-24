@@ -17,3 +17,4 @@ export { Query } from "./Query.ts";
 export { QueryMap } from "./QueryMap.ts";
 export { ResponseType } from "./ResponseType.ts";
 export { Transform } from "./Transform.ts";
+export { WithCredentials } from "./WithCredentials.ts";
