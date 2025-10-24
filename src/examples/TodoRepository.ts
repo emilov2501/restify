@@ -1,8 +1,10 @@
 import {
+	BaseUrl,
 	Body,
 	Collection,
 	DELETE,
 	GET,
+	Header,
 	Logger,
 	Path,
 	POST,
@@ -10,6 +12,8 @@ import {
 	Query,
 	QueryMap,
 	Restify,
+	Transform,
+	WithCredentials,
 } from "../lib/index.ts";
 
 interface Todo {
@@ -30,8 +34,10 @@ interface UpdateTodoDto {
 
 @Collection("/todos")
 export class TodoRepository extends Restify {
+	@WithCredentials()
 	@GET("")
 	@Logger()
+	@Transform<Todo[]>((data) => data.map((item) => item.title))
 	getTodos(): Promise<{ data: Todo[] }> {
 		return {} as Promise<{ data: Todo[] }>;
 	}
