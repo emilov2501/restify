@@ -26,7 +26,7 @@ export default defineConfig({
 	},
 	resolve: {
 		alias: {
-			restify: path.resolve(__dirname, "src/lib/index.ts"),
+			"ts-restify": path.resolve(__dirname, "src/lib/index.ts"),
 		},
 	},
 });

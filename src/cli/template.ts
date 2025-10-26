@@ -45,7 +45,7 @@ export function generateFileTemplate(
 	const routePath = getRoutePath(relativePath);
 
 	// Use restify alias for imports (configured in vite.config.ts)
-	const importPath = "restify";
+	const importPath = "ts-restify";
 
 	// Always include full CRUD operations
 	const imports =

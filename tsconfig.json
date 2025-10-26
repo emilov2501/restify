@@ -27,7 +27,7 @@
 		"noUncheckedSideEffectImports": true,
 		"baseUrl": ".",
 		"paths": {
-			"restify": ["./src/lib/index.ts"]
+			"ts-restify": ["./src/lib/index.ts"]
 		}
 	},
 	"include": ["src"],
