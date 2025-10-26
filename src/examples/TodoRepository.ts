@@ -28,7 +28,7 @@ interface UpdateTodoDto {
 	completed?: boolean;
 }
 
-@Collection("/todoss")
+@Collection("/todos")
 export class TodoRepository extends Restify {
 	getTodos(): Promise<{ data: Todo[] }> {
 		return {} as Promise<{ data: Todo[] }>;
