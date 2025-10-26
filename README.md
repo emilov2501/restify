@@ -10,7 +10,6 @@ A TypeScript library for HTTP requests with decorators, inspired by Retrofit.
 - 📦 **Powered by axios** - reliable HTTP client with great features
 - 🚀 **Easy to use** - like Retrofit for Android
 - 🔄 **Response transformations** - transform response data automatically
-- 🔌 **Flexible HTTP clients** - supports both fetch and axios
 - 📝 **Form data support** - `@FormUrlEncoded` and `@Field` decorators
 - 🔒 **Credentials control** - `@WithCredentials` decorator
 - 🪵 **Built-in logging** - `@Logger` decorator for debugging
@@ -298,9 +297,9 @@ import axios from "axios";
 const axiosInstance = axios.create({
   baseURL: "https://api.example.com",
   timeout: 5000,
-  headers: { 
+  headers: {
     "Content-Type": "application/json",
-    Authorization: "Bearer token" 
+    Authorization: "Bearer token"
   },
 });
 
