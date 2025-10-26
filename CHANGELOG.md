@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/emilov2501/restify/compare/v1.0.6...v1.1.0) (2025-10-26)
+
+
+### Features
+
+* add @OnUploadProgress and @OnDownloadProgress decorators ([a45b2a0](https://github.com/emilov2501/restify/commit/a45b2a09d4aec89ae1e5d610954386eaa62f3485))
+
+
+### Bug Fixes
+
+* add .npmignore to include dist in published package ([fb3976a](https://github.com/emilov2501/restify/commit/fb3976adf52fef8be6081e251d36e1b40f284129))
+* add node types to tsconfig ([b059a5e](https://github.com/emilov2501/restify/commit/b059a5eb7d6f3219af0698436f7a613fffb0d52d))
+
+
+### Documentation
+
+* add progress tracking examples ([408e25f](https://github.com/emilov2501/restify/commit/408e25f39d85b6f09940b4a9f3f8f0969bb5f298))
+* update README with progress tracking decorators ([81bcfce](https://github.com/emilov2501/restify/commit/81bcfce0c01135c09530f2d6e7ad243ffcec7669))
+
 ### [1.0.6](https://github.com/emilov2501/restify/compare/v1.0.5...v1.0.6) (2025-10-26)
 
 ### [1.0.5](https://github.com/emilov2501/restify/compare/v1.0.4...v1.0.5) (2025-10-26)
