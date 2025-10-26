@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.5](https://github.com/emilov2501/restify/compare/v1.0.4...v1.0.5) (2025-10-26)
+
+
+### Bug Fixes
+
+* correct todo endpoint example ([2ec2d41](https://github.com/emilov2501/restify/commit/2ec2d41182b5a358b54b5ddc54f375a3cb176f83))
+
 ### [1.0.4](https://github.com/emilov2501/restify/compare/v1.0.0...v1.0.4) (2025-10-26)
 
 ## [1.0.0](https://github.com/emilov2501/restify/releases/tag/v1.0.0) (2025-10-24)
