@@ -8,7 +8,15 @@ export interface MethodMetadata {
 
 export interface ParameterMetadata {
 	index: number;
-	type: "query" | "path" | "body" | "header" | "queryMap" | "field";
+	type:
+		| "query"
+		| "path"
+		| "body"
+		| "header"
+		| "queryMap"
+		| "field"
+		| "uploadProgress"
+		| "downloadProgress";
 	key?: string;
 }
 
