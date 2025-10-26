@@ -66,11 +66,11 @@
 		"typescript": "~5.9.3",
 		"vite": "^7.1.7",
 		"vite-plugin-dts": "^4.5.4",
-		"vitest": "^1.0.0"
+		"vitest": "^1.0.0",
+		"standard-version": "^9.5.0"
 	},
 	"dependencies": {
-		"consola": "^3.4.2",
-		"standard-version": "^9.5.0"
+		"consola": "^3.4.2"
 	},
 	"peerDependencies": {
 		"axios": "^1.0.0",
