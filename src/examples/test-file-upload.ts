@@ -8,9 +8,11 @@ class FileUploadAPI extends Restify {
 	@Logger()
 	@POST("/post")
 	async uploadFile(
-		@Body() file: FormData,
-		@OnUploadProgress() onProgress?: (progress: number) => void,
-	) {}
+		@Body() _file: FormData,
+		@OnUploadProgress() _onProgress?: (progress: number) => void,
+	): Promise<{ status: number; data: unknown }> {
+		return { status: 200, data: {} };
+	}
 }
 
 /**

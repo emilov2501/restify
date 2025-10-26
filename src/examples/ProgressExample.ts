@@ -48,8 +48,8 @@ class FileAPI extends Restify {
 	 */
 	@POST("/upload")
 	async uploadFile(
-		@Body() file: FormData,
-		@OnUploadProgress() onProgress?: (progress: number) => void,
+		@Body() _file: FormData,
+		@OnUploadProgress() _onProgress?: (progress: number) => void,
 	) {}
 
 	/**
@@ -97,8 +97,8 @@ class FileAPI extends Restify {
 	 */
 	@GET("/download/:id")
 	async downloadFile(
-		@Path("id") id: string,
-		@OnDownloadProgress() onProgress?: (progress: number) => void,
+		@Path("id") _id: string,
+		@OnDownloadProgress() _onProgress?: (progress: number) => void,
 	) {}
 
 	/**
