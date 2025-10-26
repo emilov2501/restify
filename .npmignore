@@ -1,0 +1,26 @@
+# Source files - don't publish
+src/
+examples/
+*.ts
+!*.d.ts
+
+# Config files
+.vscode/
+.idea/
+tsconfig.json
+vite.config.ts
+vitest.config.ts
+.editorconfig
+.commitlintrc.json
+
+# Development
+node_modules/
+*.log
+.DS_Store
+.husky/
+.github/
+
+# Tests
+**/*.test.ts
+**/*.spec.ts
+coverage/
