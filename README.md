@@ -17,6 +17,7 @@ A TypeScript library for HTTP requests with decorators, inspired by Retrofit.
 - 🏷️ **Deprecation warnings** - `@Deprecated` decorator for API versioning
 - 🔀 **Request/Response interceptors** - `@BeforeRequest` and `@AfterResponse` decorators
 - 🔁 **Automatic retries** - `@Retry` decorator with exponential backoff
+- 📊 **Progress tracking** - `@OnUploadProgress` and `@OnDownloadProgress` for file operations
 
 ## Installation
 
@@ -115,6 +116,8 @@ const paginated = await todoRepo.getList(1, 10);
 - `@Body()` - Request body
 - `@Header(key)` - HTTP header
 - `@Field(key)` - Form field (use with `@FormUrlEncoded`)
+- `@OnUploadProgress()` - Upload progress callback (0-100%)
+- `@OnDownloadProgress()` - Download progress callback (0-100%)
 
 ### Class Decorators
 - `@Collection(basePath)` - Base path for all class methods
@@ -241,6 +244,45 @@ class ApiRepository extends Restify {
 }
 ```
 
+### Progress Tracking
+
+Perfect for React applications with file uploads/downloads:
+
+```typescript
+import { Restify, POST, Body, OnUploadProgress } from "restify";
+
+class FileAPI extends Restify {
+  @POST("/upload")
+  async uploadFile(
+    @Body() file: FormData,
+    @OnUploadProgress() onProgress?: (progress: number) => void
+  ) {}
+
+  @GET("/download/:id")
+  async downloadFile(
+    @Path("id") id: string,
+    @OnDownloadProgress() onProgress?: (progress: number) => void
+  ) {}
+}
+
+// React usage
+function FileUploader() {
+  const [progress, setProgress] = useState(0);
+  const api = new FileAPI(axios.create({ baseURL: 'https://api.example.com' }));
+
+  const handleUpload = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    await api.uploadFile(formData, (progress) => {
+      setProgress(progress); // 0-100
+    });
+  };
+
+  return <progress value={progress} max="100" />;
+}
+```
+
 ### Automatic Retries
 
 ```typescript
@@ -340,9 +382,11 @@ src/
 |│   │   ├── Logger.ts           # @Logger
 |│   │   ├── OnError.ts          # @OnError
 |│   │   ├── Deprecated.ts       # @Deprecated
-|│   │   ├── BeforeRequest.ts    # @BeforeRequest
+│   │   ├── BeforeRequest.ts    # @BeforeRequest
 |│   │   ├── AfterResponse.ts    # @AfterResponse
 |│   │   ├── Retry.ts            # @Retry
+|│   │   ├── OnUploadProgress.ts # @OnUploadProgress
+|│   │   ├── OnDownloadProgress.ts # @OnDownloadProgress
 |│   │   ├── __tests__/          # Decorator tests
 |│   │   └── index.ts            # Export all decorators
 │   ├── __tests__/
@@ -351,6 +395,8 @@ src/
 ├── examples/
 │   ├── TodoRepository.ts       # Repository example
 │   ├── TransformExample.ts     # Transform decorator example
+│   ├── ProgressExample.ts      # Progress tracking example
+│   ├── test-file-upload.ts     # Live file upload test
 │   └── usage.ts                # Usage examples
 └── main.ts                     # Entry point
 ```
