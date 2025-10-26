@@ -2,14 +2,14 @@ import { describe, expect, it, vi } from "vitest";
 import "reflect-metadata";
 import axios from "axios";
 import { METADATA_KEYS } from "../../constants.ts";
-import type { ParameterMetadata } from "../../types.ts";
-import { OnUploadProgress } from "../OnUploadProgress.ts";
-import { OnDownloadProgress } from "../OnDownloadProgress.ts";
-import { POST } from "../POST.ts";
-import { GET } from "../GET.ts";
-import { Body } from "../Body.ts";
-import { Path } from "../Path.ts";
 import { Restify } from "../../Restify.ts";
+import type { ParameterMetadata } from "../../types.ts";
+import { Body } from "../Body.ts";
+import { GET } from "../GET.ts";
+import { OnDownloadProgress } from "../OnDownloadProgress.ts";
+import { OnUploadProgress } from "../OnUploadProgress.ts";
+import { Path } from "../Path.ts";
+import { POST } from "../POST.ts";
 
 describe("Progress Decorators", () => {
 	describe("@OnUploadProgress", () => {

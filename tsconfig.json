@@ -24,7 +24,11 @@
 		"noUnusedParameters": true,
 		"erasableSyntaxOnly": false,
 		"noFallthroughCasesInSwitch": true,
-		"noUncheckedSideEffectImports": true
+		"noUncheckedSideEffectImports": true,
+		"baseUrl": ".",
+		"paths": {
+			"restify": ["./src/lib/index.ts"]
+		}
 	},
 	"include": ["src"],
 	"exclude": ["src/**/*.test.ts", "node_modules/"]

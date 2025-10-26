@@ -1,7 +1,7 @@
-import { defineConfig } from "vite";
+import path from "node:path";
 import { resolve } from "path";
+import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
-
 export default defineConfig({
 	plugins: [dts({ include: ["src/lib"] })],
 	build: {
@@ -23,5 +23,10 @@ export default defineConfig({
 		},
 		sourcemap: true,
 		emptyOutDir: true,
+	},
+	resolve: {
+		alias: {
+			restify: path.resolve(__dirname, "src/lib/index.ts"),
+		},
 	},
 });

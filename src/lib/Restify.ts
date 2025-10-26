@@ -98,54 +98,54 @@ export class Restify {
 		) as { basePath: string } | undefined;
 
 		let url = methodMetadata.path;
-	const queryParams: Record<string, string | number | boolean> = {};
-	const headers: Record<string, string> = {};
-	const formFields: Record<string, string> = {};
-	let body: unknown;
-	let uploadProgressCallback: ((progress: number) => void) | undefined;
-	let downloadProgressCallback: ((progress: number) => void) | undefined;
+		const queryParams: Record<string, string | number | boolean> = {};
+		const headers: Record<string, string> = {};
+		const formFields: Record<string, string> = {};
+		let body: unknown;
+		let uploadProgressCallback: ((progress: number) => void) | undefined;
+		let downloadProgressCallback: ((progress: number) => void) | undefined;
 
-	// Check if FormUrlEncoded is enabled
-	const isFormUrlEncoded = Reflect.getMetadata(
-		METADATA_KEYS.FORM_URL_ENCODED,
-		proto,
-		propertyKey,
-	) as boolean | undefined;
+		// Check if FormUrlEncoded is enabled
+		const isFormUrlEncoded = Reflect.getMetadata(
+			METADATA_KEYS.FORM_URL_ENCODED,
+			proto,
+			propertyKey,
+		) as boolean | undefined;
 
-	// Process parameters
-	for (const param of parameters) {
-		const value = args[param.index];
+		// Process parameters
+		for (const param of parameters) {
+			const value = args[param.index];
 
-		if (param.type === "query" && param.key && value !== undefined) {
-			queryParams[param.key] = value as string | number | boolean;
-		} else if (param.type === "queryMap" && value !== undefined) {
-			// Handle dynamic query parameters from object
-			const queryObj = value as Record<
-				string,
-				string | number | boolean | undefined
-			>;
-			for (const [key, val] of Object.entries(queryObj)) {
-				if (val !== undefined && val !== null) {
-					queryParams[key] = val;
+			if (param.type === "query" && param.key && value !== undefined) {
+				queryParams[param.key] = value as string | number | boolean;
+			} else if (param.type === "queryMap" && value !== undefined) {
+				// Handle dynamic query parameters from object
+				const queryObj = value as Record<
+					string,
+					string | number | boolean | undefined
+				>;
+				for (const [key, val] of Object.entries(queryObj)) {
+					if (val !== undefined && val !== null) {
+						queryParams[key] = val;
+					}
 				}
+			} else if (param.type === "path" && param.key && value !== undefined) {
+				url = url.replace(`:${param.key}`, String(value));
+			} else if (param.type === "body") {
+				body = value;
+			} else if (param.type === "header" && param.key && value !== undefined) {
+				headers[param.key] = String(value);
+			} else if (param.type === "field" && param.key && value !== undefined) {
+				// Collect form fields for x-www-form-urlencoded
+				formFields[param.key] = String(value);
+			} else if (param.type === "uploadProgress") {
+				// Store upload progress callback
+				uploadProgressCallback = value as (progress: number) => void;
+			} else if (param.type === "downloadProgress") {
+				// Store download progress callback
+				downloadProgressCallback = value as (progress: number) => void;
 			}
-		} else if (param.type === "path" && param.key && value !== undefined) {
-			url = url.replace(`:${param.key}`, String(value));
-		} else if (param.type === "body") {
-			body = value;
-		} else if (param.type === "header" && param.key && value !== undefined) {
-			headers[param.key] = String(value);
-		} else if (param.type === "field" && param.key && value !== undefined) {
-			// Collect form fields for x-www-form-urlencoded
-			formFields[param.key] = String(value);
-		} else if (param.type === "uploadProgress") {
-			// Store upload progress callback
-			uploadProgressCallback = value as (progress: number) => void;
-		} else if (param.type === "downloadProgress") {
-			// Store download progress callback
-			downloadProgressCallback = value as (progress: number) => void;
 		}
-	}
 
 		// If FormUrlEncoded, convert form fields to URL-encoded string
 		if (isFormUrlEncoded && Object.keys(formFields).length > 0) {
@@ -227,29 +227,31 @@ export class Restify {
 			attempt = 0,
 		): Promise<RestifyResponse<T>> => {
 			try {
-			// Build request config
-			let requestConfig: AxiosRequestConfig = {
-				method: methodMetadata.method,
-				url: finalURL,
-				headers,
-				data: body,
-				responseType: responseType as never,
-				withCredentials,
-				onUploadProgress: uploadProgressCallback
-					? (progressEvent) => {
-							const total = progressEvent.total || 0;
-							const progress = total > 0 ? (progressEvent.loaded / total) * 100 : 0;
-							uploadProgressCallback?.(Math.round(progress));
-						}
-					: undefined,
-				onDownloadProgress: downloadProgressCallback
-					? (progressEvent) => {
-							const total = progressEvent.total || 0;
-							const progress = total > 0 ? (progressEvent.loaded / total) * 100 : 0;
-							downloadProgressCallback?.(Math.round(progress));
-						}
-					: undefined,
-			};
+				// Build request config
+				let requestConfig: AxiosRequestConfig = {
+					method: methodMetadata.method,
+					url: finalURL,
+					headers,
+					data: body,
+					responseType: responseType as never,
+					withCredentials,
+					onUploadProgress: uploadProgressCallback
+						? (progressEvent) => {
+								const total = progressEvent.total || 0;
+								const progress =
+									total > 0 ? (progressEvent.loaded / total) * 100 : 0;
+								uploadProgressCallback?.(Math.round(progress));
+							}
+						: undefined,
+					onDownloadProgress: downloadProgressCallback
+						? (progressEvent) => {
+								const total = progressEvent.total || 0;
+								const progress =
+									total > 0 ? (progressEvent.loaded / total) * 100 : 0;
+								downloadProgressCallback?.(Math.round(progress));
+							}
+						: undefined,
+				};
 
 				// Check if BeforeRequest interceptor is defined
 				const beforeRequestInterceptor = Reflect.getMetadata(

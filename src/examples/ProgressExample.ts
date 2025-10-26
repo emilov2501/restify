@@ -4,8 +4,8 @@ import {
 	GET,
 	OnDownloadProgress,
 	OnUploadProgress,
-	POST,
 	Path,
+	POST,
 	Restify,
 } from "../lib/index.ts";
 

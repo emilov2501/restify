@@ -1,11 +1,14 @@
 {
 	"name": "ts-restify",
-	"version": "1.1.0",
+	"version": "1.2.0-beta.0",
 	"description": "A TypeScript library for HTTP requests with decorators, inspired by Retrofit",
 	"type": "module",
 	"main": "./dist/restify.cjs.js",
 	"module": "./dist/restify.es.js",
 	"types": "./dist/index.d.ts",
+	"bin": {
+		"restify-gen": "./dist/cli/index.js"
+	},
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
@@ -37,7 +40,13 @@
 	],
 	"scripts": {
 		"dev": "vite",
-		"build": "tsc && vite build",
+		"build": "npm run build:lib && npm run build:cli",
+		"build:lib": "vite build",
+		"build:cli": "tsc --project tsconfig.cli.json",
+		"gen": "tsx src/cli/index.ts",
+		"gen:watch": "tsx src/cli/index.ts --watch",
+		"gen:create": "tsx src/cli/index.ts create",
+		"gen:init": "echo '{\n  \"rootFolder\": \"src/api\",\n  \"outputFile\": \"api-routes.gen.ts\"\n}' > restify.config.json",
 		"preview": "vite preview",
 		"test": "vitest",
 		"test:ui": "vitest --ui",
@@ -64,6 +73,7 @@
 		"lint-staged": "^15.0.0",
 		"reflect-metadata": "^0.2.2",
 		"standard-version": "^9.5.0",
+		"tsx": "^4.20.6",
 		"typescript": "~5.9.3",
 		"vite": "^7.1.7",
 		"vite-plugin-dts": "^4.5.4",
