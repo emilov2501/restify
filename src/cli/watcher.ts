@@ -10,6 +10,7 @@ let debounceTimer: NodeJS.Timeout | null = null;
 export async function watchRoutes(
 	apiDir: string,
 	outputFile: string,
+	makeCrud = true,
 ): Promise<void> {
 	// Generate initial routes
 	await generateRoutes(apiDir, outputFile);
@@ -51,7 +52,7 @@ export async function watchRoutes(
 							consola.info(`🎨 Generating template...`);
 
 							const relativePath = relative(apiDir, fullPath);
-const template = generateFileTemplate(relativePath);
+const template = generateFileTemplate(relativePath, makeCrud);
 
 							// Ensure directory exists
 							await mkdir(dirname(fullPath), { recursive: true });

@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Restify Configuration",
+  "description": "Configuration file for Restify route generator",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Path to JSON schema file"
+    },
+    "rootFolder": {
+      "type": "string",
+      "description": "Root folder where API files are located",
+      "default": "src/api",
+      "examples": ["src/api", "src/routes", "api"]
+    },
+    "outputFile": {
+      "type": "string",
+      "description": "Output file path for generated routes",
+      "default": "src/apiRoutes.gen.ts",
+      "examples": ["src/apiRoutes.gen.ts", "src/generated/routes.ts"]
+    },
+    "makeCrud": {
+      "type": "boolean",
+      "description": "Generate CRUD operations template for new files. If false, generates empty class",
+      "default": true
+    }
+  },
+  "required": ["rootFolder", "outputFile"],
+  "additionalProperties": false
+}

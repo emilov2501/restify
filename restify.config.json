@@ -1,0 +1,6 @@
+{
+	"$schema": "./restify.config.schema.json",
+	"rootFolder": "src/api",
+	"outputFile": "src/apiRoutes.gen.ts",
+	"makeCrud": true
+}

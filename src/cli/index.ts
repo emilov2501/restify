@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { parseArgs } from "node:util";
 import { consola } from "consola";
-import { loadConfig, mergeConfigWithCLI } from "./config.js";
+import { initConfig, loadConfig, mergeConfigWithCLI } from "./config.js";
 import { createApiFile } from "./create.js";
 import { generateRoutes } from "./generator.js";
 import { watchRoutes } from "./watcher.js";
@@ -32,6 +32,12 @@ const { values, positionals } = parseArgs({
 async function main() {
 	consola.start("Restify Route Generator");
 
+	// Initialize config
+	if (positionals[0] === "init") {
+		await initConfig();
+		return;
+	}
+
 	// Load config file
 	const baseConfig = await loadConfig();
 
@@ -53,14 +59,14 @@ async function main() {
 			consola.info("Usage: restify-gen create users/$id");
 			process.exit(1);
 		}
-		await createApiFile(apiDir, filePath);
+		await createApiFile(apiDir, filePath, config.makeCrud);
 		return;
 	}
 
 	// Watch mode
-	if (config.watch || values.watch) {
+	if (values.watch) {
 		consola.info(`👀 Watching ${apiDir} for changes...`);
-		await watchRoutes(apiDir, outputFile);
+		await watchRoutes(apiDir, outputFile, config.makeCrud);
 	} else {
 		// Generate routes
 		await generateRoutes(apiDir, outputFile);

@@ -6,6 +6,7 @@ import { generateFileTemplate } from "./template.js";
 export async function createApiFile(
 	apiDir: string,
 	filePath: string,
+	makeCrud = true,
 ): Promise<void> {
 	const fullPath = join(apiDir, filePath);
 
@@ -18,7 +19,7 @@ export async function createApiFile(
 	consola.info(`📝 Creating API file: ${finalRelativePath}`);
 
 	// Generate template
-const template = generateFileTemplate(finalRelativePath);
+const template = generateFileTemplate(finalRelativePath, makeCrud);
 
 	// Ensure directory exists
 	await mkdir(dirname(finalPath), { recursive: true });

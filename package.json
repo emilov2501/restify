@@ -17,7 +17,8 @@
 		}
 	},
 	"files": [
-		"dist"
+		"dist",
+		"restify.config.schema.json"
 	],
 	"author": "Eldiiar Temir",
 	"license": "MIT",
@@ -46,7 +47,7 @@
 		"gen": "tsx src/cli/index.ts",
 		"gen:watch": "tsx src/cli/index.ts --watch",
 		"gen:create": "tsx src/cli/index.ts create",
-		"gen:init": "echo '{\n  \"rootFolder\": \"src/api\",\n  \"outputFile\": \"src/apiRoutes.gen.ts\"\n}' > restify.config.json",
+		"gen:init": "tsx src/cli/index.ts init",
 		"preview": "vite preview",
 		"test": "vitest",
 		"test:ui": "vitest --ui",

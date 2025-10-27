@@ -85,11 +85,17 @@ async function scanDirectory(
 /**
  * Generate TypeScript code for routes
  */
-function generateRoutesCode(routes: RouteInfo[]): string {
+function generateRoutesCode(routes: RouteInfo[], rootFolder: string): string {
+	// Extract path after 'src/' (e.g., 'src/api' -> 'api', 'src/examples/mock' -> 'examples/mock')
+	const srcIndex = rootFolder.indexOf('src/');
+	const folderName = srcIndex >= 0 
+		? rootFolder.substring(srcIndex + 4) // +4 to skip 'src/'
+		: rootFolder.split('/').pop() || 'api';
+	
 	const imports = routes
 		.map(
 			(route, index) =>
-				`import * as Route${index} from './api/${route.filePath}';`,
+				`import * as Route${index} from './${folderName}/${route.filePath}';`,
 		)
 		.join("\n");
 	const routeEntries = routes
@@ -219,7 +225,7 @@ export async function generateRoutes(
 		consola.info(`  ${route.path} → ${route.filePath}`);
 	}
 
-	const code = generateRoutesCode(routes);
+	const code = generateRoutesCode(routes, apiDir);
 
 	await writeFile(outputFile, code, "utf-8");
 
