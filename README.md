@@ -19,6 +19,8 @@ A TypeScript library for HTTP requests with decorators, inspired by Retrofit.
 - 🔀 **Request/Response interceptors** - `@BeforeRequest` and `@AfterResponse` decorators
 - 🔁 **Automatic retries** - `@Retry` decorator with exponential backoff
 - 📊 **Progress tracking** - `@OnUploadProgress` and `@OnDownloadProgress` for file operations
+- 🧪 **Mock support** - `@Mock` decorator for development and testing
+- ❌ **Request cancellation** - `@Cancelable` decorator for automatic request cancellation
 
 ## Installation
 
@@ -294,6 +296,8 @@ const paginated = await todoRepo.getList(1, 10);
 - `@BeforeRequest(interceptor)` - Intercept and modify request before sending
 - `@AfterResponse(interceptor)` - Intercept and modify response after receiving
 - `@Retry(options?)` - Automatically retry failed requests with exponential backoff
+- `@Mock(options)` - Mock responses for development and testing
+- `@Cancelable(options?)` - Automatically cancel previous requests
 
 ## Advanced Features
 
@@ -489,6 +493,92 @@ class ApiRepository extends Restify {
 }
 ```
 
+### Mock Support
+
+Use the `@Mock` decorator to return mock data during development and testing without making real API calls:
+
+```typescript
+@Collection("/api")
+class ApiRepository extends Restify {
+  // Simple mock with static data
+  @GET("/users")
+  @Mock({
+    data: [{ id: 1, name: "John" }, { id: 2, name: "Jane" }]
+  })
+  getUsers(): Promise<RestifyResponse<User[]>> {
+    return {} as Promise<RestifyResponse<User[]>>;
+  }
+
+  // Mock with dynamic data
+  @GET("/user/:id")
+  @Mock({
+    data: () => ({ id: 1, name: "John", email: "john@example.com" }),
+    delay: 500 // Simulate network delay
+  })
+  getUser(@Path("id") id: string): Promise<RestifyResponse<User>> {
+    return {} as Promise<RestifyResponse<User>>;
+  }
+
+  // Mock only in development (default behavior)
+  @POST("/login")
+  @Mock({
+    data: { token: "mock-token-123", userId: 1 },
+    status: 200,
+    enabled: process.env.NODE_ENV !== "production" // Explicit control
+  })
+  login(@Body() credentials: Credentials): Promise<RestifyResponse<AuthResponse>> {
+    return {} as Promise<RestifyResponse<AuthResponse>>;
+  }
+
+  // Mock with real request for Network tab visibility
+  @GET("/products")
+  @Mock({
+    data: [{ id: 1, name: "Product 1" }],
+    useRealRequest: true // Makes actual request but returns mock data
+  })
+  getProducts(): Promise<RestifyResponse<Product[]>> {
+    return {} as Promise<RestifyResponse<Product[]>>;
+  }
+}
+```
+
+### Request Cancellation
+
+Automatically cancel previous requests when a new one is made:
+
+```typescript
+@Collection("/api")
+class SearchAPI extends Restify {
+  // Cancel previous request when new search is triggered
+  @GET("/search")
+  @Cancelable() // Uses "latest" strategy by default
+  search(@Query("q") query: string): Promise<RestifyResponse<SearchResult[]>> {
+    return {} as Promise<RestifyResponse<SearchResult[]>>;
+  }
+
+  // Custom cancellation strategy
+  @GET("/autocomplete")
+  @Cancelable({ strategy: "latest" })
+  autocomplete(@Query("q") query: string): Promise<RestifyResponse<string[]>> {
+    return {} as Promise<RestifyResponse<string[]>>;
+  }
+}
+
+// React usage example
+function SearchComponent() {
+  const [results, setResults] = useState([]);
+  const api = new SearchAPI(axios.create({ baseURL: 'https://api.example.com' }));
+
+  const handleSearch = async (query: string) => {
+    // Previous search request will be automatically cancelled
+    const response = await api.search(query);
+    setResults(response.data);
+  };
+
+  return <input onChange={(e) => handleSearch(e.target.value)} />;
+}
+```
+
 ## Configuration
 
 The library uses axios as its HTTP client. You must pass an axios instance to the constructor:
@@ -545,10 +635,12 @@ src/
 │   │   ├── BeforeRequest.ts    # @BeforeRequest
 |│   │   ├── AfterResponse.ts    # @AfterResponse
 |│   │   ├── Retry.ts            # @Retry
-|│   │   ├── OnUploadProgress.ts # @OnUploadProgress
-|│   │   ├── OnDownloadProgress.ts # @OnDownloadProgress
-|│   │   ├── __tests__/          # Decorator tests
-|│   │   └── index.ts            # Export all decorators
+||│   │   ├── OnUploadProgress.ts # @OnUploadProgress
+||│   │   ├── OnDownloadProgress.ts # @OnDownloadProgress
+||│   │   ├── Mock.ts            # @Mock
+||│   │   ├── Cancelable.ts      # @Cancelable
+||│   │   ├── __tests__/          # Decorator tests
+||│   │   └── index.ts            # Export all decorators
 │   ├── __tests__/
 │   │   └── Restify.test.ts     # Core tests
 │   └── index.ts                # Main export
