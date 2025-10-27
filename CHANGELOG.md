@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/emilov2501/restify/compare/v1.1.0...v1.3.0) (2025-10-27)
+
+
+### Features
+
+* add CLI generator for API routes ([566bfe7](https://github.com/emilov2501/restify/commit/566bfe7517ca4ddb5ca56c929c0f61a4df48d79b))
+* add flat API structure with resource-specific method names and type-safe initApis generator ([f1f8ab3](https://github.com/emilov2501/restify/commit/f1f8ab394569db9025bc4db1a4afcc3cb80a3911))
+* include nested paths in method names generation ([32cf886](https://github.com/emilov2501/restify/commit/32cf88655f3bd8661e08adc8d5e0fcc33b590fae))
+* support nested paths and kebab-case in route generation ([307ffbf](https://github.com/emilov2501/restify/commit/307ffbf2c9cd221f8063ebbf0e978f8f29bebe53))
+* use unpkg CDN for schema URL in init command ([0521202](https://github.com/emilov2501/restify/commit/0521202c082e327489742ebe4ccb81ae830a977e))
+
+
+### Bug Fixes
+
+* improve route generator config and empty routes handling ([52fc183](https://github.com/emilov2501/restify/commit/52fc183e27d1095756f70058786feb0cf5d87821))
+
+
+### Code Refactoring
+
+* remove extra documentation files and update CLI structure ([0a78bf7](https://github.com/emilov2501/restify/commit/0a78bf74880e6fccdcc21b24db027ce918fb242a))
+
 ## [1.1.0](https://github.com/emilov2501/restify/compare/v1.0.6...v1.1.0) (2025-10-26)
 
 
