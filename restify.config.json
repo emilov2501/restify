@@ -1,6 +1,6 @@
 {
-  "$schema": "https://unpkg.com/ts-restify@1.2.3-beta.4/restify.config.schema.json",
-  "rootFolder": "src/api",
-  "outputFile": "src/apiRoutes.gen.ts",
-  "makeCrud": true
+	"$schema": "https://unpkg.com/ts-restify@1.2.3-beta.4/restify.config.schema.json",
+	"rootFolder": "src/api",
+	"outputFile": "src/apiRoutes.gen.ts",
+	"makeCrud": true
 }

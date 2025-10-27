@@ -23,7 +23,13 @@ A TypeScript library for HTTP requests with decorators, inspired by Retrofit.
 ## Installation
 
 ```bash
-npm install ts-restify axios reflect-metadata
+npm install ts-restify
+
+yarn add ts-restify
+
+bun add ts-restify
+
+pnpm add ts-restify
 ```
 
 ### Peer Dependencies
@@ -179,10 +185,10 @@ npx restify-gen -d src/routes -o src/generated.ts
 {
   // Path to root folder with API files
   rootFolder: string;        // default: "src/api"
-  
+
   // Output file for generated routes
   outputFile: string;        // default: "src/apiRoutes.gen.ts"
-  
+
   // Generate CRUD template for new files
   makeCrud: boolean;         // default: true
 }
