@@ -8,6 +8,7 @@ import {
 	type CancelableOptions,
 	getAbortController,
 } from "./decorators/Cancelable.ts";
+import type { MockOptions } from "./decorators/Mock.ts";
 import type { RetryOptions } from "./decorators/Retry.ts";
 import type {
 	MethodMetadata,
@@ -65,6 +66,41 @@ export class Restify {
 		propertyKey: string,
 	): Promise<RestifyResponse<T>> {
 		const proto = Object.getPrototypeOf(this) as object;
+
+		// Check if Mock is enabled
+		const mockConfig = Reflect.getMetadata(
+			METADATA_KEYS.MOCK,
+			proto,
+			propertyKey,
+		) as MockOptions<T> | undefined;
+
+		if (mockConfig) {
+			// Check if mock is explicitly enabled/disabled
+			const isMockEnabled =
+				mockConfig.enabled !== undefined
+					? mockConfig.enabled
+					: process.env.NODE_ENV !== "production";
+
+			if (isMockEnabled) {
+				// Simulate network delay if specified
+				const delay = mockConfig.delay ?? 0;
+				if (delay > 0) {
+					await new Promise((resolve) => setTimeout(resolve, delay));
+				}
+
+				// Get mock data (either static or from function)
+				const data =
+					typeof mockConfig.data === "function"
+						? await (mockConfig.data as () => T | Promise<T>)()
+						: mockConfig.data;
+
+				return {
+					data: data as T,
+					status: mockConfig.status ?? 200,
+					headers: {},
+				};
+			}
+		}
 
 		// Check if method is deprecated
 		const deprecatedMetadata = Reflect.getMetadata(
