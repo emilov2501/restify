@@ -9,6 +9,7 @@ A TypeScript library for HTTP requests with decorators, inspired by Retrofit.
 - 🔧 **Decomposed architecture** - each decorator in a separate file
 - 📦 **Powered by axios** - reliable HTTP client with great features
 - 🚀 **Easy to use** - like Retrofit for Android
+- 🛠️ **CLI tool** - scaffold API clients with `restify-gen` command
 - 🔄 **Response transformations** - transform response data automatically
 - 📝 **Form data support** - `@FormUrlEncoded` and `@Field` decorators
 - 🔒 **Credentials control** - `@WithCredentials` decorator
@@ -22,7 +23,7 @@ A TypeScript library for HTTP requests with decorators, inspired by Retrofit.
 ## Installation
 
 ```bash
-npm install restify axios reflect-metadata
+npm install ts-restify axios reflect-metadata
 ```
 
 ### Peer Dependencies
@@ -33,6 +34,159 @@ This library requires the following peer dependencies:
 - `reflect-metadata` ^0.2.0 - Metadata reflection API
 
 Make sure to install them in your project.
+
+## CLI Tool
+
+Restify includes a powerful CLI tool (`restify-gen`) to help you quickly scaffold and generate API client files.
+
+### Installation
+
+The CLI is included with the package and available as `restify-gen` command.
+
+### Quick Start
+
+1. **Initialize configuration**:
+
+```bash
+npx restify-gen init
+```
+
+This creates a `restify.config.json` file in your project root:
+
+```json path=null start=null
+{
+  "$schema": "./node_modules/ts-restify/restify.config.schema.json",
+  "rootFolder": "src/api",
+  "outputFile": "src/apiRoutes.gen.ts",
+  "makeCrud": true
+}
+```
+
+2. **Create a new API file**:
+
+```bash
+npx restify-gen create users
+```
+
+This generates `src/api/users.ts` with CRUD template:
+
+```typescript path=null start=null
+import { Restify, Collection, GET, POST, PUT, DELETE, Path, Body } from "ts-restify";
+
+interface User {
+  id: number;
+  // Add your fields here
+}
+
+@Collection("/users")
+export class UsersAPI extends Restify {
+  @GET("")
+  getAll(): Promise<User[]> {
+    return {} as Promise<User[]>;
+  }
+
+  @GET("/:id")
+  getById(@Path("id") id: number): Promise<User> {
+    return {} as Promise<User>;
+  }
+
+  @POST("")
+  create(@Body() data: Partial<User>): Promise<User> {
+    return {} as Promise<User>;
+  }
+
+  @PUT("/:id")
+  update(@Path("id") id: number, @Body() data: Partial<User>): Promise<User> {
+    return {} as Promise<User>;
+  }
+
+  @DELETE("/:id")
+  delete(@Path("id") id: number): Promise<void> {
+    return {} as Promise<void>;
+  }
+}
+```
+
+3. **Generate routes file**:
+
+```bash
+npx restify-gen
+```
+
+This scans your API folder and generates `src/apiRoutes.gen.ts` with all available routes.
+
+### CLI Commands
+
+#### `init` - Initialize configuration
+
+```bash
+npx restify-gen init
+```
+
+Creates `restify.config.json` with default settings.
+
+#### `create` - Create new API file
+
+```bash
+npx restify-gen create <path>
+```
+
+**Examples:**
+
+```bash
+# Create users API
+npx restify-gen create users
+
+# Create nested path
+npx restify-gen create users/posts
+```
+
+**Options:**
+- With `makeCrud: true` (default): Generates full CRUD template
+- With `makeCrud: false`: Generates empty class
+
+#### Generate routes
+
+```bash
+npx restify-gen
+```
+
+Scans API folder and generates routes file.
+
+**Options:**
+- `-w, --watch` - Watch mode (regenerate on file changes)
+- `-d, --dir <path>` - Override root folder
+- `-o, --output <path>` - Override output file
+
+**Examples:**
+
+```bash
+# Generate once
+npx restify-gen
+
+# Watch mode
+npx restify-gen --watch
+
+# Custom paths
+npx restify-gen -d src/routes -o src/generated.ts
+```
+
+### Configuration File
+
+`restify.config.json` schema:
+
+```typescript path=null start=null
+{
+  // Path to root folder with API files
+  rootFolder: string;        // default: "src/api"
+  
+  // Output file for generated routes
+  outputFile: string;        // default: "src/apiRoutes.gen.ts"
+  
+  // Generate CRUD template for new files
+  makeCrud: boolean;         // default: true
+}
+```
 
 ## Usage
 
