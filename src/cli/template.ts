@@ -1,27 +1,25 @@
 import { basename } from "node:path";
 
 /**
- * Convert filename to PascalCase class name
+ * Convert file path to PascalCase class name with nested paths
  * Examples:
- *   users → UsersApi
- *   user-profile → UserProfileApi
- *   todo-items → TodoItemsApi
+ *   users.ts → UsersApi
+ *   user-profile.ts → UserProfileApi
+ *   users/worker.ts → UsersWorkerApi
+ *   employee/worker-profile.ts → EmployeeWorkerProfileApi
  */
-function toPascalCase(filename: string): string {
+function toPascalCase(filePath: string): string {
 	// Remove .ts extension
-	const withoutExt = filename.replace(/\.ts$/, "");
+	const withoutExt = filePath.replace(/\.ts$/, "");
 
-	// Split by dash, underscore, or camelCase
-	const words = withoutExt
-		.replace(/([a-z])([A-Z])/g, "$1-$2")
-		.split(/[-_]/)
-		.filter(Boolean);
-
-	const pascalCase = words
+	// Split by directory separator and dashes
+	const className = withoutExt
+		.split("/")
+		.flatMap(part => part.split("-"))
 		.map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
 		.join("");
 
-	return `${pascalCase}Api`;
+	return `${className}Api`;
 }
 
 /**
@@ -78,7 +76,8 @@ export function generateFileTemplate(
 	filename: string,
 	relativePath: string,
 ): string {
-	const className = toPascalCase(basename(filename));
+	// Use full relative path for class name generation
+	const className = toPascalCase(relativePath);
 	const routePath = getRoutePath(relativePath);
 	const resourceName = getResourceName(basename(filename));
 	const ResourceName = capitalize(resourceName);

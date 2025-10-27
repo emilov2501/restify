@@ -144,18 +144,32 @@ export type RouteParamsFor<T extends RoutePath> = T extends keyof RouteParams
 export function initApis(axios: AxiosInstance): ApiClient {
   // Initialize all API instances
 ${routes.map((route) => {
-	const apiName = route.path.split("/").filter(Boolean).pop();
+	// Generate variable name from full path (lowercase first letter)
+	const varName = route.filePath
+		.replace(/\.ts$/, "")
+		.split("/")
+		.flatMap(part => part.split("-"))
+		.map((word, index) => index === 0 ? word.charAt(0).toLowerCase() + word.slice(1) : word.charAt(0).toUpperCase() + word.slice(1))
+		.join("") + "Api";
+	// Generate class name from full path (directories + filename)
 	const className = route.filePath
 		.replace(/\.ts$/, "")
-		.split("-")
+		.split("/")
+		.flatMap(part => part.split("-"))
 		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 		.join("") + "Api";
-	return `  const ${apiName}Api = new Route${routes.indexOf(route)}.${className}(axios);`;
+	return `  const ${varName} = new Route${routes.indexOf(route)}.${className}(axios);`;
 }).join("\n")}
 
   const instances = [${routes.map((route) => {
-	const apiName = route.path.split("/").filter(Boolean).pop();
-	return `${apiName}Api`;
+	// Generate variable name from full path (lowercase first letter)
+	const varName = route.filePath
+		.replace(/\.ts$/, "")
+		.split("/")
+		.flatMap(part => part.split("-"))
+		.map((word, index) => index === 0 ? word.charAt(0).toLowerCase() + word.slice(1) : word.charAt(0).toUpperCase() + word.slice(1))
+		.join("") + "Api";
+	return varName;
 }).join(", ")}]${routes.length > 0 ? " as const" : " as never[]"};
 
   // Merge all methods from all instances
@@ -174,9 +188,11 @@ ${routes.map((route) => {
 }
 
 export type ApiClient = ${routes.length > 0 ? routes.map((route) => {
+	// Generate class name from full path (directories + filename)
 	const className = route.filePath
 		.replace(/\.ts$/, "")
-		.split("-")
+		.split("/")
+		.flatMap(part => part.split("-"))
 		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 		.join("") + "Api";
 	return `Route${routes.indexOf(route)}.${className}`;

@@ -1,6 +1,6 @@
 {
 	"name": "ts-restify",
-	"version": "1.2.3-beta.0",
+	"version": "1.2.3-beta.1",
 	"description": "A TypeScript library for HTTP requests with decorators, inspired by Retrofit",
 	"type": "module",
 	"main": "./dist/restify.cjs.js",
@@ -39,7 +39,7 @@
 		"retrofit"
 	],
 	"scripts": {
-		"dev": "vite",
+		"dev": "concurrently \"npm run gen:watch\" \"vite\"",
 		"build": "npm run build:lib && npm run build:cli",
 		"build:lib": "vite build",
 		"build:cli": "tsc --project tsconfig.cli.json",
@@ -69,6 +69,7 @@
 		"@types/node": "^24.9.1",
 		"@vitest/ui": "^1.0.0",
 		"axios": "^1.12.2",
+		"concurrently": "^9.2.1",
 		"husky": "^8.0.0",
 		"lint-staged": "^15.0.0",
 		"reflect-metadata": "^0.2.2",

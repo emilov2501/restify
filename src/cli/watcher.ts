@@ -39,7 +39,7 @@ export async function watchRoutes(
 			debounceTimer = setTimeout(async () => {
 				const fullPath = join(apiDir, filename);
 
-				// Check if this is a new file creation (rename event for new files)
+				// Check if this is a new file creation or deletion (rename event)
 				if (eventType === "rename") {
 					try {
 						// Try to read the file
@@ -61,7 +61,8 @@ export async function watchRoutes(
 							consola.success(`✓ Generated template for ${filename}`);
 						}
 					} catch {
-						// File doesn't exist yet or other error, skip template generation
+						// File doesn't exist - it was deleted
+						consola.info(`🗑️  File deleted: ${filename}`);
 					}
 				}
 
