@@ -36,7 +36,30 @@ export class Restify {
 
 	constructor(axiosInstance: AxiosInstance) {
 		this.axiosInstance = axiosInstance;
+		this.setupMockInterceptor();
 		this.initializeRoutes();
+	}
+
+	private setupMockInterceptor(): void {
+		// Add response interceptor to handle mock requests
+		this.axiosInstance.interceptors.response.use(
+			(response) => response,
+			async (error) => {
+				const config = error.config;
+				if (!config || !config._mockData) {
+					return Promise.reject(error);
+				}
+
+				// Return mock data as successful response
+				return {
+					data: config._mockData,
+					status: config._mockStatus || 200,
+					statusText: "OK",
+					headers: {},
+					config,
+				} as AxiosResponse;
+			},
+		);
 	}
 
 	private initializeRoutes(): void {
@@ -81,7 +104,7 @@ export class Restify {
 					? mockConfig.enabled
 					: process.env.NODE_ENV !== "production";
 
-			if (isMockEnabled) {
+			if (isMockEnabled && !mockConfig.useRealRequest) {
 				// Simulate network delay if specified
 				const delay = mockConfig.delay ?? 0;
 				if (delay > 0) {
@@ -89,10 +112,21 @@ export class Restify {
 				}
 
 				// Get mock data (either static or from function)
-				const data =
+				let data =
 					typeof mockConfig.data === "function"
 						? await (mockConfig.data as () => T | Promise<T>)()
 						: mockConfig.data;
+
+				// Apply Transform if defined
+				const transformFn = Reflect.getMetadata(
+					METADATA_KEYS.TRANSFORM,
+					proto,
+					propertyKey,
+				) as ((data: unknown) => unknown) | undefined;
+
+				if (transformFn) {
+					data = (await transformFn(data)) as T;
+				}
 
 				return {
 					data: data as T,
@@ -310,6 +344,32 @@ export class Restify {
 							}
 						: undefined,
 				};
+
+				// If mock is enabled with useRealRequest, attach mock data to config
+				if (mockConfig?.enabled !== false && mockConfig?.useRealRequest) {
+					const isMockEnabled =
+						mockConfig.enabled !== undefined
+							? mockConfig.enabled
+							: process.env.NODE_ENV !== "production";
+
+					if (isMockEnabled) {
+						// Simulate network delay if specified
+						const delay = mockConfig.delay ?? 0;
+						if (delay > 0) {
+							await new Promise((resolve) => setTimeout(resolve, delay));
+						}
+
+						// Get mock data
+						const mockData =
+							typeof mockConfig.data === "function"
+								? await (mockConfig.data as () => T | Promise<T>)()
+								: mockConfig.data;
+
+						// Attach mock data to config (will be caught by interceptor)
+						(requestConfig as AxiosRequestConfig & { _mockData: T; _mockStatus: number })._mockData = mockData as T;
+						(requestConfig as AxiosRequestConfig & { _mockData: T; _mockStatus: number })._mockStatus = mockConfig.status ?? 200;
+					}
+				}
 
 				// Check if BeforeRequest interceptor is defined
 				const beforeRequestInterceptor = Reflect.getMetadata(

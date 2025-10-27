@@ -8,6 +8,7 @@ export interface MockOptions<T = unknown> {
 	delay?: number;
 	status?: number;
 	enabled?: boolean;
+	useRealRequest?: boolean;
 }
 
 /**
@@ -19,6 +20,7 @@ export interface MockOptions<T = unknown> {
  * @param options.delay - Delay in milliseconds to simulate network latency (optional)
  * @param options.status - HTTP status code (default: 200)
  * @param options.enabled - Whether mock is enabled (default: true in development, false in production)
+ * @param options.useRealRequest - If true, makes real HTTP request visible in browser Network tab (default: false)
  *
  * @example
  * ```ts
@@ -31,7 +33,8 @@ export interface MockOptions<T = unknown> {
  *
  * @GET("/:id")
  * @Mock({
- *   data: () => ({ id: 1, name: "John", timestamp: Date.now() })
+ *   data: () => ({ id: 1, name: "John", timestamp: Date.now() }),
+ *   useRealRequest: true // Shows in browser Network tab
  * })
  * getUser(@Path("id") id: number): Promise<User> {}
  * ```
