@@ -4,6 +4,10 @@ import { consola } from "consola";
 import { METADATA_KEYS } from "./constants.ts";
 import type { AfterResponseInterceptor } from "./decorators/AfterResponse.ts";
 import type { BeforeRequestInterceptor } from "./decorators/BeforeRequest.ts";
+import {
+	type CancelableOptions,
+	getAbortController,
+} from "./decorators/Cancelable.ts";
 import type { RetryOptions } from "./decorators/Retry.ts";
 import type {
 	MethodMetadata,
@@ -227,6 +231,23 @@ export class Restify {
 			attempt = 0,
 		): Promise<RestifyResponse<T>> => {
 			try {
+				// Check if Cancelable is enabled
+				const cancelableConfig = Reflect.getMetadata(
+					METADATA_KEYS.CANCELABLE,
+					proto,
+					propertyKey,
+				) as CancelableOptions | undefined;
+
+				let abortSignal: AbortSignal | undefined;
+				if (cancelableConfig) {
+					const controller = getAbortController(
+						this,
+						propertyKey,
+						cancelableConfig.strategy ?? "latest",
+					);
+					abortSignal = controller.signal;
+				}
+
 				// Build request config
 				let requestConfig: AxiosRequestConfig = {
 					method: methodMetadata.method,
@@ -235,6 +256,7 @@ export class Restify {
 					data: body,
 					responseType: responseType as never,
 					withCredentials,
+					signal: abortSignal,
 					onUploadProgress: uploadProgressCallback
 						? (progressEvent) => {
 								const total = progressEvent.total || 0;

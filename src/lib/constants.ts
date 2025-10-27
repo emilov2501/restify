@@ -13,4 +13,5 @@ export const METADATA_KEYS = {
 	BEFORE_REQUEST: "restify:beforeRequest",
 	AFTER_RESPONSE: "restify:afterResponse",
 	RETRY: "restify:retry",
+	CANCELABLE: "restify:cancelable",
 } as const;

@@ -2,6 +2,7 @@ export { AfterResponse } from "./AfterResponse.ts";
 export { BaseUrl } from "./BaseUrl.ts";
 export { BeforeRequest } from "./BeforeRequest.ts";
 export { Body } from "./Body.ts";
+export { Cancelable } from "./Cancelable.ts";
 export { Collection } from "./Collection.ts";
 export { DELETE } from "./DELETE.ts";
 export { Deprecated } from "./Deprecated.ts";
