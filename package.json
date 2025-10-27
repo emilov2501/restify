@@ -1,6 +1,6 @@
 {
 	"name": "ts-restify",
-	"version": "1.2.2-beta.0",
+	"version": "1.2.3-beta.0",
 	"description": "A TypeScript library for HTTP requests with decorators, inspired by Retrofit",
 	"type": "module",
 	"main": "./dist/restify.cjs.js",
