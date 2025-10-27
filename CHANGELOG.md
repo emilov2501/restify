@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.4.1](https://github.com/emilov2501/restify/compare/v1.4.0...v1.4.1) (2025-10-27)
+
+
+### Documentation
+
+* add Mock and Cancelable decorators documentation to README ([8e848db](https://github.com/emilov2501/restify/commit/8e848db6ca592ce33bc63bce8d51d50b19544812))
+
 ## [1.4.0](https://github.com/emilov2501/restify/compare/v1.3.2...v1.4.0) (2025-10-27)
 
 
