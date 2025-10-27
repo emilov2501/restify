@@ -18,7 +18,7 @@ export async function createApiFile(
 	consola.info(`📝 Creating API file: ${finalRelativePath}`);
 
 	// Generate template
-	const template = generateFileTemplate(finalRelativePath, finalRelativePath);
+const template = generateFileTemplate(finalRelativePath);
 
 	// Ensure directory exists
 	await mkdir(dirname(finalPath), { recursive: true });

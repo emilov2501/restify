@@ -1,4 +1,3 @@
-import { basename } from "node:path";
 
 /**
  * Convert file path to PascalCase class name with nested paths
@@ -79,7 +78,6 @@ function capitalize(str: string): string {
  * Generate API class template for new file
  */
 export function generateFileTemplate(
-	filename: string,
 	relativePath: string,
 ): string {
 	// Use full relative path for class name generation
