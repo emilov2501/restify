@@ -52,7 +52,7 @@ export async function watchRoutes(
 							consola.info(`🎨 Generating template...`);
 
 							const relativePath = relative(apiDir, fullPath);
-const template = generateFileTemplate(relativePath, makeCrud);
+							const template = generateFileTemplate(relativePath, makeCrud);
 
 							// Ensure directory exists
 							await mkdir(dirname(fullPath), { recursive: true });

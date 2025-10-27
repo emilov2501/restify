@@ -87,11 +87,12 @@ async function scanDirectory(
  */
 function generateRoutesCode(routes: RouteInfo[], rootFolder: string): string {
 	// Extract path after 'src/' (e.g., 'src/api' -> 'api', 'src/examples/mock' -> 'examples/mock')
-	const srcIndex = rootFolder.indexOf('src/');
-	const folderName = srcIndex >= 0 
-		? rootFolder.substring(srcIndex + 4) // +4 to skip 'src/'
-		: rootFolder.split('/').pop() || 'api';
-	
+	const srcIndex = rootFolder.indexOf("src/");
+	const folderName =
+		srcIndex >= 0
+			? rootFolder.substring(srcIndex + 4) // +4 to skip 'src/'
+			: rootFolder.split("/").pop() || "api";
+
 	const imports = routes
 		.map(
 			(route, index) =>
@@ -149,34 +150,49 @@ export type RouteParamsFor<T extends RoutePath> = T extends keyof RouteParams
  */
 export function initApis(axios: AxiosInstance): ApiClient {
   // Initialize all API instances
-${routes.map((route) => {
-	// Generate variable name from full path (lowercase first letter)
-	const varName = route.filePath
-		.replace(/\.ts$/, "")
-		.split("/")
-		.flatMap(part => part.split("-"))
-		.map((word, index) => index === 0 ? word.charAt(0).toLowerCase() + word.slice(1) : word.charAt(0).toUpperCase() + word.slice(1))
-		.join("") + "Api";
-	// Generate class name from full path (directories + filename)
-	const className = route.filePath
-		.replace(/\.ts$/, "")
-		.split("/")
-		.flatMap(part => part.split("-"))
-		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-		.join("") + "Api";
-	return `  const ${varName} = new Route${routes.indexOf(route)}.${className}(axios);`;
-}).join("\n")}
+${routes
+	.map((route) => {
+		// Generate variable name from full path (lowercase first letter)
+		const varName =
+			route.filePath
+				.replace(/\.ts$/, "")
+				.split("/")
+				.flatMap((part) => part.split("-"))
+				.map((word, index) =>
+					index === 0
+						? word.charAt(0).toLowerCase() + word.slice(1)
+						: word.charAt(0).toUpperCase() + word.slice(1),
+				)
+				.join("") + "Api";
+		// Generate class name from full path (directories + filename)
+		const className =
+			route.filePath
+				.replace(/\.ts$/, "")
+				.split("/")
+				.flatMap((part) => part.split("-"))
+				.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+				.join("") + "Api";
+		return `  const ${varName} = new Route${routes.indexOf(route)}.${className}(axios);`;
+	})
+	.join("\n")}
 
-  const instances = [${routes.map((route) => {
-	// Generate variable name from full path (lowercase first letter)
-	const varName = route.filePath
-		.replace(/\.ts$/, "")
-		.split("/")
-		.flatMap(part => part.split("-"))
-		.map((word, index) => index === 0 ? word.charAt(0).toLowerCase() + word.slice(1) : word.charAt(0).toUpperCase() + word.slice(1))
-		.join("") + "Api";
-	return varName;
-}).join(", ")}]${routes.length > 0 ? " as const" : " as never[]"};
+  const instances = [${routes
+		.map((route) => {
+			// Generate variable name from full path (lowercase first letter)
+			const varName =
+				route.filePath
+					.replace(/\.ts$/, "")
+					.split("/")
+					.flatMap((part) => part.split("-"))
+					.map((word, index) =>
+						index === 0
+							? word.charAt(0).toLowerCase() + word.slice(1)
+							: word.charAt(0).toUpperCase() + word.slice(1),
+					)
+					.join("") + "Api";
+			return varName;
+		})
+		.join(", ")}]${routes.length > 0 ? " as const" : " as never[]"};
 
   // Merge all methods from all instances
   const merged: Partial<ApiClient> = {};
@@ -193,16 +209,23 @@ ${routes.map((route) => {
   return merged as ApiClient;
 }
 
-export type ApiClient = ${routes.length > 0 ? routes.map((route) => {
-	// Generate class name from full path (directories + filename)
-	const className = route.filePath
-		.replace(/\.ts$/, "")
-		.split("/")
-		.flatMap(part => part.split("-"))
-		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-		.join("") + "Api";
-	return `Route${routes.indexOf(route)}.${className}`;
-}).join(" & ") : "Record<string, never>"};
+export type ApiClient = ${
+		routes.length > 0
+			? routes
+					.map((route) => {
+						// Generate class name from full path (directories + filename)
+						const className =
+							route.filePath
+								.replace(/\.ts$/, "")
+								.split("/")
+								.flatMap((part) => part.split("-"))
+								.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+								.join("") + "Api";
+						return `Route${routes.indexOf(route)}.${className}`;
+					})
+					.join(" & ")
+			: "Record<string, never>"
+	};
 `;
 
 	return code;

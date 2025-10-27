@@ -1,4 +1,3 @@
-
 /**
  * Convert file path to PascalCase class name with nested paths
  * Examples:
@@ -14,7 +13,7 @@ function toPascalCase(filePath: string): string {
 	// Split by directory separator and dashes
 	const className = withoutExt
 		.split("/")
-		.flatMap(part => part.split("-"))
+		.flatMap((part) => part.split("-"))
 		.map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
 		.join("");
 
@@ -43,12 +42,10 @@ export function getRoutePath(filePath: string): string {
 function getResourceName(relativePath: string): string {
 	// Remove .ts extension
 	const withoutExt = relativePath.replace(/\.ts$/, "");
-	
+
 	// Split by directory separator and dashes, convert to camelCase
-	const words = withoutExt
-		.split("/")
-		.flatMap(part => part.split("-"));
-	
+	const words = withoutExt.split("/").flatMap((part) => part.split("-"));
+
 	const camelCase = words
 		.map((word, index) => {
 			if (index === 0) {
@@ -57,13 +54,13 @@ function getResourceName(relativePath: string): string {
 			return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 		})
 		.join("");
-	
+
 	// Remove trailing 's' for singular form (simple pluralization)
 	// users → user, todos → todo, posts → post
 	if (camelCase.endsWith("s") && camelCase.length > 1) {
 		return camelCase.slice(0, -1);
 	}
-	
+
 	return camelCase;
 }
 
