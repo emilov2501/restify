@@ -14,4 +14,5 @@ export const METADATA_KEYS = {
 	AFTER_RESPONSE: "restify:afterResponse",
 	RETRY: "restify:retry",
 	CANCELABLE: "restify:cancelable",
+	MOCK: "restify:mock",
 } as const;

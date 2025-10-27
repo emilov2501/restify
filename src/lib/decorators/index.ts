@@ -11,6 +11,7 @@ export { FormUrlEncoded } from "./FormUrlEncoded.ts";
 export { GET } from "./GET.ts";
 export { Header } from "./Header.ts";
 export { Logger } from "./Logger.ts";
+export { Mock } from "./Mock.ts";
 export { OnDownloadProgress } from "./OnDownloadProgress.ts";
 export { OnError } from "./OnError.ts";
 export { OnUploadProgress } from "./OnUploadProgress.ts";
