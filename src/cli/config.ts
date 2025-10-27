@@ -93,9 +93,20 @@ export async function initConfig(cwd: string = process.cwd()): Promise<void> {
 		// File doesn't exist, continue
 	}
 
+	// Get package version for schema URL
+	let schemaUrl = "./restify.config.schema.json";
+	try {
+		const pkgPath = new URL("../../package.json", import.meta.url);
+		const pkgContent = await readFile(pkgPath, "utf-8");
+		const pkg = JSON.parse(pkgContent) as { name: string; version: string };
+		schemaUrl = `https://unpkg.com/${pkg.name}@${pkg.version}/restify.config.schema.json`;
+	} catch {
+		// Fallback to local path if package.json not found
+	}
+
 	// Create config with default values
 	const configWithSchema = {
-		$schema: "./restify.config.schema.json",
+		$schema: schemaUrl,
 		...DEFAULT_CONFIG,
 	};
 	const configContent = JSON.stringify(configWithSchema, null, 2);
