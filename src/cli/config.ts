@@ -10,7 +10,7 @@ export interface RestifyConfig {
 
 const DEFAULT_CONFIG: RestifyConfig = {
 	rootFolder: "src/api",
-	outputFile: "api-routes.gen.ts",
+	outputFile: "src/apiRoutes.gen.ts",
 	watch: false,
 };
 
