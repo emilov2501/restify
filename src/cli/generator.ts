@@ -9,18 +9,30 @@ interface RouteInfo {
 }
 
 /**
+ * Convert kebab-case to camelCase
+ * Examples:
+ *   employee-worker → employeeWorker
+ *   todo-items → todoItems
+ */
+function kebabToCamelCase(str: string): string {
+	return str.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+}
+
+/**
  * Convert file path to route path
  * Examples:
  *   users.ts → /users
  *   posts.ts → /posts
  *   todo-items.ts → /todo-items
+ *   employee-worker.ts → /employeeWorker
  */
 function filePathToRoute(filePath: string): RouteInfo {
 	// Remove .ts extension
 	const withoutExt = filePath.replace(/\.ts$/, "");
 
-	// Simple path conversion - no dynamic params
-	const routePath = `/${withoutExt}`;
+	// Convert kebab-case to camelCase for route path
+	const camelCasePath = kebabToCamelCase(withoutExt);
+	const routePath = `/${camelCasePath}`;
 
 	return {
 		path: routePath,
@@ -144,7 +156,7 @@ ${routes.map((route) => {
   const instances = [${routes.map((route) => {
 	const apiName = route.path.split("/").filter(Boolean).pop();
 	return `${apiName}Api`;
-}).join(", ")}];
+}).join(", ")}]${routes.length > 0 ? " as const" : " as never[]"};
 
   // Merge all methods from all instances
   const merged: Partial<ApiClient> = {};
@@ -161,14 +173,14 @@ ${routes.map((route) => {
   return merged as ApiClient;
 }
 
-export type ApiClient = ${routes.map((route) => {
+export type ApiClient = ${routes.length > 0 ? routes.map((route) => {
 	const className = route.filePath
 		.replace(/\.ts$/, "")
 		.split("-")
 		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 		.join("") + "Api";
 	return `Route${routes.indexOf(route)}.${className}`;
-}).join(" & ")};
+}).join(" & ") : "Record<string, never>"};
 `;
 
 	return code;

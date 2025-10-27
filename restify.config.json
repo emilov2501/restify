@@ -1,4 +1,4 @@
 {
 	"rootFolder": "src/examples/api",
-	"outputFile": "src/examples/api-routes.gen.ts"
+	"outputFile": "src/examples/apiRoutes.gen.ts"
 }

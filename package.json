@@ -1,6 +1,6 @@
 {
 	"name": "ts-restify",
-	"version": "1.2.1-beta.0",
+	"version": "1.2.2-beta.0",
 	"description": "A TypeScript library for HTTP requests with decorators, inspired by Retrofit",
 	"type": "module",
 	"main": "./dist/restify.cjs.js",
@@ -46,7 +46,7 @@
 		"gen": "tsx src/cli/index.ts",
 		"gen:watch": "tsx src/cli/index.ts --watch",
 		"gen:create": "tsx src/cli/index.ts create",
-		"gen:init": "echo '{\n  \"rootFolder\": \"src/api\",\n  \"outputFile\": \"api-routes.gen.ts\"\n}' > restify.config.json",
+		"gen:init": "echo '{\n  \"rootFolder\": \"src/api\",\n  \"outputFile\": \"src/apiRoutes.gen.ts\"\n}' > restify.config.json",
 		"preview": "vite preview",
 		"test": "vitest",
 		"test:ui": "vitest --ui",
