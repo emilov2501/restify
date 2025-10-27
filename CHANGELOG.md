@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/emilov2501/restify/compare/v1.3.2...v1.4.0) (2025-10-27)
+
+
+### Features
+
+* add Cancelable decorator for automatic request cancellation ([ce2ede6](https://github.com/emilov2501/restify/commit/ce2ede63b500343708285a838a4134fbe1ea5511))
+* add Mock decorator with tests ([b1d9d2b](https://github.com/emilov2501/restify/commit/b1d9d2bc9485b928dd436606268853479d10ef48))
+* add useRealRequest option to Mock decorator for Network tab visibility ([ebba947](https://github.com/emilov2501/restify/commit/ebba947e7fcb069698bee8f9ecb7788409b361b3))
+
+
+### Bug Fixes
+
+* resolve TypeScript error in Mock decorator data type assertion ([04383eb](https://github.com/emilov2501/restify/commit/04383eb07e3960222dcedb3f37511b8a86a8210d))
+
 ### [1.3.2](https://github.com/emilov2501/restify/compare/v1.3.1...v1.3.2) (2025-10-27)
 
 
