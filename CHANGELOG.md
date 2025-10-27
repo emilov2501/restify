@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.3.1](https://github.com/emilov2501/restify/compare/v1.3.0...v1.3.1) (2025-10-27)
+
+
+### Documentation
+
+* add CLI tool documentation to README ([880632b](https://github.com/emilov2501/restify/commit/880632be059d148889682eac74544d27ba4e5ff4))
+
 ## [1.3.0](https://github.com/emilov2501/restify/compare/v1.1.0...v1.3.0) (2025-10-27)
 
 
