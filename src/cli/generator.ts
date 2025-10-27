@@ -104,6 +104,7 @@ function generateRoutesCode(routes: RouteInfo[]): string {
  * Do not edit manually
  */
 
+import type { AxiosInstance } from 'axios';
 ${imports}
 
 export const apiRoutes = {
@@ -122,6 +123,52 @@ ${routeParamsTypes || "  // No routes with params"}
 export type RouteParamsFor<T extends RoutePath> = T extends keyof RouteParams
   ? RouteParams[T]
   : Record<string, never>;
+
+/**
+ * Initialize all API clients with flat structure
+ * @param axios - Axios instance for HTTP requests
+ * @returns Object with all methods from all APIs
+ */
+export function initApis(axios: AxiosInstance): ApiClient {
+  // Initialize all API instances
+${routes.map((route) => {
+	const apiName = route.path.split("/").filter(Boolean).pop();
+	const className = route.filePath
+		.replace(/\.ts$/, "")
+		.split("-")
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join("") + "Api";
+	return `  const ${apiName}Api = new Route${routes.indexOf(route)}.${className}(axios);`;
+}).join("\n")}
+
+  const instances = [${routes.map((route) => {
+	const apiName = route.path.split("/").filter(Boolean).pop();
+	return `${apiName}Api`;
+}).join(", ")}];
+
+  // Merge all methods from all instances
+  const merged: Partial<ApiClient> = {};
+  for (const instance of instances) {
+    const proto = Object.getPrototypeOf(instance);
+    const methodNames = Object.getOwnPropertyNames(proto).filter(
+      (name) => name !== 'constructor' && typeof instance[name as keyof typeof instance] === 'function'
+    );
+    for (const method of methodNames) {
+      (merged as Record<string, unknown>)[method] = (instance[method as keyof typeof instance] as Function).bind(instance);
+    }
+  }
+
+  return merged as ApiClient;
+}
+
+export type ApiClient = ${routes.map((route) => {
+	const className = route.filePath
+		.replace(/\.ts$/, "")
+		.split("-")
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join("") + "Api";
+	return `Route${routes.indexOf(route)}.${className}`;
+}).join(" & ")};
 `;
 
 	return code;

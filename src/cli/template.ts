@@ -35,6 +35,43 @@ export function getRoutePath(filePath: string): string {
 }
 
 /**
+ * Extract resource name from filename
+ * Examples:
+ *   todos.ts → todo
+ *   users.ts → user
+ *   todo-items.ts → todoItem
+ */
+function getResourceName(filename: string): string {
+	const withoutExt = filename.replace(/\.ts$/, "");
+	
+	// Split by dash and convert to camelCase
+	const words = withoutExt.split("-");
+	const camelCase = words
+		.map((word, index) => {
+			if (index === 0) {
+				return word.toLowerCase();
+			}
+			return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+		})
+		.join("");
+	
+	// Remove trailing 's' for singular form (simple pluralization)
+	// users → user, todos → todo, posts → post
+	if (camelCase.endsWith("s") && camelCase.length > 1) {
+		return camelCase.slice(0, -1);
+	}
+	
+	return camelCase;
+}
+
+/**
+ * Capitalize first letter
+ */
+function capitalize(str: string): string {
+	return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/**
  * Generate API class template for new file
  */
 export function generateFileTemplate(
@@ -43,6 +80,8 @@ export function generateFileTemplate(
 ): string {
 	const className = toPascalCase(basename(filename));
 	const routePath = getRoutePath(relativePath);
+	const resourceName = getResourceName(basename(filename));
+	const ResourceName = capitalize(resourceName);
 
 	// Use restify alias for imports (configured in vite.config.ts)
 	const importPath = "ts-restify";
@@ -61,8 +100,8 @@ export function generateFileTemplate(
 export class ${className} extends Restify {
 \t@GET("")
 \t@Logger()
-\tasync getAll() {
-\t\t// GET ${routePath} - Get all items
+\tasync get${ResourceName}s() {
+\t\t// GET ${routePath} - Get all ${resourceName}s
 \t\treturn {
 \t\t\tdata: [],
 \t\t};
@@ -70,8 +109,8 @@ export class ${className} extends Restify {
 
 \t@GET("/:id")
 \t@Logger()
-\tasync getById(@Path("id") id: string) {
-\t\t// GET ${routePath}/:id - Get item by id
+\tasync get${ResourceName}ById(@Path("id") id: string) {
+\t\t// GET ${routePath}/:id - Get ${resourceName} by id
 \t\treturn {
 \t\t\tdata: { id },
 \t\t};
@@ -79,8 +118,8 @@ export class ${className} extends Restify {
 
 \t@POST("")
 \t@Logger()
-\tasync create(@Body() body: unknown) {
-\t\t// POST ${routePath} - Create new item
+\tasync create${ResourceName}(@Body() body: unknown) {
+\t\t// POST ${routePath} - Create new ${resourceName}
 \t\treturn {
 \t\t\tdata: { id: "generated-id", ...body as object },
 \t\t};
@@ -88,8 +127,8 @@ export class ${className} extends Restify {
 
 \t@PUT("/:id")
 \t@Logger()
-\tasync update(@Path("id") id: string, @Body() body: unknown) {
-\t\t// PUT ${routePath}/:id - Update item
+\tasync update${ResourceName}(@Path("id") id: string, @Body() body: unknown) {
+\t\t// PUT ${routePath}/:id - Update ${resourceName}
 \t\treturn {
 \t\t\tdata: { id, ...body as object },
 \t\t};
@@ -97,8 +136,8 @@ export class ${className} extends Restify {
 
 \t@DELETE("/:id")
 \t@Logger()
-\tasync delete(@Path("id") id: string) {
-\t\t// DELETE ${routePath}/:id - Delete item
+\tasync delete${ResourceName}(@Path("id") id: string) {
+\t\t// DELETE ${routePath}/:id - Delete ${resourceName}
 \t\treturn {
 \t\t\tdata: { success: true, id },
 \t\t};
