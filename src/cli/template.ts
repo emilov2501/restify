@@ -33,17 +33,23 @@ export function getRoutePath(filePath: string): string {
 }
 
 /**
- * Extract resource name from filename
+ * Extract resource name from full relative path including nested directories
  * Examples:
  *   todos.ts → todo
  *   users.ts → user
  *   todo-items.ts → todoItem
+ *   employee/worker.ts → employeeWorker
+ *   employee/worker-profile.ts → employeeWorkerProfile
  */
-function getResourceName(filename: string): string {
-	const withoutExt = filename.replace(/\.ts$/, "");
+function getResourceName(relativePath: string): string {
+	// Remove .ts extension
+	const withoutExt = relativePath.replace(/\.ts$/, "");
 	
-	// Split by dash and convert to camelCase
-	const words = withoutExt.split("-");
+	// Split by directory separator and dashes, convert to camelCase
+	const words = withoutExt
+		.split("/")
+		.flatMap(part => part.split("-"));
+	
 	const camelCase = words
 		.map((word, index) => {
 			if (index === 0) {
@@ -79,7 +85,8 @@ export function generateFileTemplate(
 	// Use full relative path for class name generation
 	const className = toPascalCase(relativePath);
 	const routePath = getRoutePath(relativePath);
-	const resourceName = getResourceName(basename(filename));
+	// Use full relative path for resource name to include nested paths
+	const resourceName = getResourceName(relativePath);
 	const ResourceName = capitalize(resourceName);
 
 	// Use restify alias for imports (configured in vite.config.ts)
