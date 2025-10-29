@@ -21,8 +21,7 @@ export default defineConfig({
 				},
 			},
 		},
-		sourcemap: true,
-		emptyOutDir: true,
+		sourcemap: false,
 	},
 	resolve: {
 		alias: {
