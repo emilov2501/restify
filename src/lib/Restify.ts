@@ -117,15 +117,15 @@ export class Restify {
 						? await (mockConfig.data as () => T | Promise<T>)()
 						: mockConfig.data;
 
-				// Apply Transform if defined
-				const transformFn = Reflect.getMetadata(
+				// Apply Transform if defined (for mock data)
+				const transformResponseFn = Reflect.getMetadata(
 					METADATA_KEYS.TRANSFORM,
 					proto,
 					propertyKey,
 				) as ((data: unknown) => unknown) | undefined;
 
-				if (transformFn) {
-					data = (await transformFn(data)) as T;
+				if (transformResponseFn) {
+					data = (await transformResponseFn(data)) as T;
 				}
 
 				return {
@@ -318,6 +318,13 @@ export class Restify {
 					abortSignal = controller.signal;
 				}
 
+				// Check if Transform function is defined
+				const transformResponseFn = Reflect.getMetadata(
+					METADATA_KEYS.TRANSFORM,
+					proto,
+					propertyKey,
+				) as ((data: unknown) => unknown) | undefined;
+
 				// Build request config
 				let requestConfig: AxiosRequestConfig = {
 					method: methodMetadata.method,
@@ -327,6 +334,16 @@ export class Restify {
 					responseType: responseType as never,
 					withCredentials,
 					signal: abortSignal,
+					transformResponse: transformResponseFn
+						? [
+								...(this.axiosInstance.defaults.transformResponse
+									? Array.isArray(this.axiosInstance.defaults.transformResponse)
+										? this.axiosInstance.defaults.transformResponse
+										: [this.axiosInstance.defaults.transformResponse]
+									: []),
+								transformResponseFn,
+							]
+						: undefined,
 					onUploadProgress: uploadProgressCallback
 						? (progressEvent) => {
 								const total = progressEvent.total || 0;
@@ -359,15 +376,20 @@ export class Restify {
 							await new Promise((resolve) => setTimeout(resolve, delay));
 						}
 
-						// Get mock data
-						const mockData =
-							typeof mockConfig.data === "function"
-								? await (mockConfig.data as () => T | Promise<T>)()
-								: mockConfig.data;
+				// Get mock data
+				let mockData =
+					typeof mockConfig.data === "function"
+						? await (mockConfig.data as () => T | Promise<T>)()
+						: mockConfig.data;
 
-						// Attach mock data to config (will be caught by interceptor)
-						(requestConfig as AxiosRequestConfig & { _mockData: T; _mockStatus: number })._mockData = mockData as T;
-						(requestConfig as AxiosRequestConfig & { _mockData: T; _mockStatus: number })._mockStatus = mockConfig.status ?? 200;
+				// Apply transformResponse to mock data
+				if (transformResponseFn) {
+					mockData = (await transformResponseFn(mockData)) as T;
+				}
+
+				// Attach mock data to config (will be caught by interceptor)
+				(requestConfig as AxiosRequestConfig & { _mockData: T; _mockStatus: number })._mockData = mockData as T;
+				(requestConfig as AxiosRequestConfig & { _mockData: T; _mockStatus: number })._mockStatus = mockConfig.status ?? 200;
 					}
 				}
 
@@ -413,20 +435,8 @@ export class Restify {
 					}
 				}
 
-				// Check if Transform function is defined
-				const transformFn = Reflect.getMetadata(
-					METADATA_KEYS.TRANSFORM,
-					proto,
-					propertyKey,
-				) as ((data: unknown) => unknown) | undefined;
-
-				let transformedData: unknown = response.data;
-				if (transformFn) {
-					transformedData = await transformFn(response.data);
-				}
-
 				return {
-					data: transformedData as T,
+					data: response.data as T,
 					status: response.status,
 					headers: headersRecord,
 				};
