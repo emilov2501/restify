@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.4.3](https://github.com/emilov2501/restify/compare/v1.4.2...v1.4.3) (2025-10-29)
+
+
+### Documentation
+
+* remove project structure section from README ([82e7383](https://github.com/emilov2501/restify/commit/82e7383fb8d78e67e14e818833e6a6a1a8fb20c6))
+
 ### [1.4.2](https://github.com/emilov2501/restify/compare/v1.4.1...v1.4.2) (2025-10-29)
 
 
