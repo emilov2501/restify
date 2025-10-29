@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.4.2](https://github.com/emilov2501/restify/compare/v1.4.1...v1.4.2) (2025-10-29)
+
+
+### Code Refactoring
+
+* use axios transformResponse option for response transformation ([ab4dacb](https://github.com/emilov2501/restify/commit/ab4dacbde21237d262c68beba5a6fdc0480368a6))
+
 ### [1.4.1](https://github.com/emilov2501/restify/compare/v1.4.0...v1.4.1) (2025-10-27)
 
 
