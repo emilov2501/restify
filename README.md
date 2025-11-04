@@ -287,6 +287,7 @@ const paginated = await todoRepo.getList(1, 10);
 
 ### Method Decorators
 - `@Transform(fn)` - Transform response data
+- `@TransformRequest(fn)` - Transform request body before sending
 - `@ResponseType(type)` - Set response type (`json`, `text`, `blob`, `arraybuffer`)
 - `@FormUrlEncoded()` - Set content-type to `application/x-www-form-urlencoded`
 - `@WithCredentials()` - Include credentials in cross-origin requests
@@ -314,6 +315,45 @@ class UserRepository extends Restify {
   }))
   getUser(@Path("id") id: number): Promise<User> {
     return {} as Promise<User>;
+  }
+}
+```
+
+### Request Transformation
+
+Transform request body before sending to the server:
+
+```typescript
+@Collection("/users")
+class UserRepository extends Restify {
+  @POST("")
+  @TransformRequest<CreateUserDto>((user) => ({
+    ...user,
+    fullName: `${user.firstName} ${user.lastName}`,
+    createdAt: new Date().toISOString()
+  }))
+  createUser(@Body() user: CreateUserDto): Promise<RestifyResponse<User>> {
+    return {} as Promise<RestifyResponse<User>>;
+  }
+
+  @POST("/batch")
+  @TransformRequest<Record<string, unknown>>((data) => ({
+    ...data,
+    timestamp: Date.now(),
+    version: "v1"
+  }))
+  createBatch(@Body() data: Record<string, unknown>): Promise<RestifyResponse<void>> {
+    return {} as Promise<RestifyResponse<void>>;
+  }
+
+  // Async transformation
+  @POST("/secure")
+  @TransformRequest<SecureData>(async (data) => ({
+    ...data,
+    encrypted: await encrypt(JSON.stringify(data))
+  }))
+  createSecure(@Body() data: SecureData): Promise<RestifyResponse<void>> {
+    return {} as Promise<RestifyResponse<void>>;
   }
 }
 ```
