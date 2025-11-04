@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/emilov2501/restify/compare/v1.4.3...v1.5.0) (2025-11-04)
+
+
+### Features
+
+* add TransformRequest decorator for request data transformation ([d8c6471](https://github.com/emilov2501/restify/commit/d8c6471d60962980d3f4c97efdb2c054f6d6d681))
+
 ### [1.4.3](https://github.com/emilov2501/restify/compare/v1.4.2...v1.4.3) (2025-10-29)
 
 
