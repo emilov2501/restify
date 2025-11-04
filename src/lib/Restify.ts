@@ -325,12 +325,25 @@ export class Restify {
 					propertyKey,
 				) as ((data: unknown) => unknown) | undefined;
 
+				// Check if TransformRequest function is defined
+				const transformRequestFn = Reflect.getMetadata(
+					METADATA_KEYS.TRANSFORM_REQUEST,
+					proto,
+					propertyKey,
+				) as ((data: unknown) => unknown | Promise<unknown>) | undefined;
+
+				// Apply TransformRequest if defined
+				let transformedBody = body;
+				if (transformRequestFn && body !== undefined) {
+					transformedBody = await transformRequestFn(body);
+				}
+
 				// Build request config
 				let requestConfig: AxiosRequestConfig = {
 					method: methodMetadata.method,
 					url: finalURL,
 					headers,
-					data: body,
+					data: transformedBody,
 					responseType: responseType as never,
 					withCredentials,
 					signal: abortSignal,

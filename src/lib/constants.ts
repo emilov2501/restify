@@ -5,6 +5,7 @@ export const METADATA_KEYS = {
 	LOGGER: "restify:logger",
 	ON_ERROR: "restify:onError",
 	TRANSFORM: "restify:transform",
+	TRANSFORM_REQUEST: "restify:transformRequest",
 	DEPRECATED: "restify:deprecated",
 	RESPONSE_TYPE: "restify:responseType",
 	BASE_URL: "restify:baseUrl",
