@@ -256,9 +256,7 @@ export class Restify {
 
 		// Log request if logger is enabled
 		if (isLoggerEnabled) {
-			consola.info(`${propertyKey} →`, {
-				method: methodMetadata.method,
-				url: finalURL,
+			consola.info(`${propertyKey} → ${methodMetadata.method} ${finalURL}`, {
 				headers: Object.keys(headers).length > 0 ? headers : undefined,
 				body: body !== undefined ? body : undefined,
 			});
