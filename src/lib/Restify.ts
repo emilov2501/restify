@@ -256,7 +256,15 @@ export class Restify {
 
 		// Log request if logger is enabled
 		if (isLoggerEnabled) {
-			consola.info(`${propertyKey} → ${methodMetadata.method} ${finalURL}`, {
+			// Get full URL including baseURL from axios instance
+			const axiosBaseURL = this.axiosInstance.defaults.baseURL || '';
+			const fullURLForLog = baseUrlMetadata?.baseURL 
+				? finalURL 
+				: axiosBaseURL 
+					? `${axiosBaseURL}${finalURL}` 
+					: finalURL;
+			
+			consola.info(`${propertyKey} → ${methodMetadata.method} ${fullURLForLog}`, {
 				headers: Object.keys(headers).length > 0 ? headers : undefined,
 				body: body !== undefined ? body : undefined,
 			});
