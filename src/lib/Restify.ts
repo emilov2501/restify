@@ -387,20 +387,30 @@ export class Restify {
 							await new Promise((resolve) => setTimeout(resolve, delay));
 						}
 
-				// Get mock data
-				let mockData =
-					typeof mockConfig.data === "function"
-						? await (mockConfig.data as () => T | Promise<T>)()
-						: mockConfig.data;
+						// Get mock data
+						let mockData =
+							typeof mockConfig.data === "function"
+								? await (mockConfig.data as () => T | Promise<T>)()
+								: mockConfig.data;
 
-				// Apply transformResponse to mock data
-				if (transformResponseFn) {
-					mockData = (await transformResponseFn(mockData)) as T;
-				}
+						// Apply transformResponse to mock data
+						if (transformResponseFn) {
+							mockData = (await transformResponseFn(mockData)) as T;
+						}
 
-				// Attach mock data to config (will be caught by interceptor)
-				(requestConfig as AxiosRequestConfig & { _mockData: T; _mockStatus: number })._mockData = mockData as T;
-				(requestConfig as AxiosRequestConfig & { _mockData: T; _mockStatus: number })._mockStatus = mockConfig.status ?? 200;
+						// Attach mock data to config (will be caught by interceptor)
+						(
+							requestConfig as AxiosRequestConfig & {
+								_mockData: T;
+								_mockStatus: number;
+							}
+						)._mockData = mockData as T;
+						(
+							requestConfig as AxiosRequestConfig & {
+								_mockData: T;
+								_mockStatus: number;
+							}
+						)._mockStatus = mockConfig.status ?? 200;
 					}
 				}
 
