@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.4](https://github.com/emilov2501/restify/compare/v1.5.3...v1.5.4) (2025-12-03)
+
+
+### Bug Fixes
+
+* add full URL to error logging when logger is enabled ([c1d805d](https://github.com/emilov2501/restify/commit/c1d805d07845ca9dd22f4ae6d5173c3d4701f5a7))
+
 ### [1.5.3](https://github.com/emilov2501/restify/compare/v1.5.2...v1.5.3) (2025-12-02)
 
 
