@@ -472,9 +472,17 @@ export class Restify {
 			} catch (error) {
 				// Log error if logger is enabled
 				if (isLoggerEnabled) {
+					// Get full URL including baseURL from axios instance
+					const axiosBaseURL = this.axiosInstance.defaults.baseURL || '';
+					const fullURLForLog = baseUrlMetadata?.baseURL 
+						? finalURL 
+						: axiosBaseURL 
+							? `${axiosBaseURL}${finalURL}` 
+							: finalURL;
+					
 					consola.error(`${propertyKey} ✗`, {
 						method: methodMetadata.method,
-						url: finalURL,
+						url: fullURLForLog,
 						error: error instanceof Error ? error.message : String(error),
 					});
 				}
